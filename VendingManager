@@ -1,0 +1,61 @@
+package finalproject;
+
+import java.io.Serializable;
+
+public class VendingManager implements Serializable{
+	String type;  //추가or수정or판매
+	private String inwhen; // 작업 시간
+	private int swater; // 남은 생수병 갯수
+	private int scoffee; // 남은 커피캔 갯수
+	private int scoke; // 남은 콜라캔 갯수
+	private int sorange; // 남은 오렌지 쥬스 갯수
+	
+	public VendingManager(String type, String inwhen, int swater, int scoffee, int scoke, int sorange){
+		this.type = type;
+		this.inwhen = inwhen;
+		this.swater = swater;
+		this.scoffee = scoffee;
+		this.scoke = scoke;
+		this.sorange = sorange;
+	}
+	public String getType(){
+		return type;
+	}
+	
+	public String getInwhen(){
+		return inwhen;
+	}
+	
+	public int getSwater(){
+		return swater;
+	}
+	
+	public int getScoffee(){
+		return scoffee;
+	}
+	
+	public int getScoke(){
+		return scoke;
+	}
+	
+	public int getSorange(){
+		return sorange;
+	}
+	
+	public void setSwater(int swater){
+		this.swater = swater;
+	}
+	
+	public void setScoffee(int scoffee){
+		this.scoffee = scoffee;
+	}
+	
+	public void setsCoke(int scoke){
+		this.scoke = scoke;
+	}
+	
+	public void setSorange(int sorange){
+		this.sorange = sorange;
+	}
+	
+}
