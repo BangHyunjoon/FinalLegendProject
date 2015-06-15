@@ -1,0 +1,65 @@
+package finalproject;
+
+import java.io.Serializable;
+
+public class VendingCustomer implements Serializable{
+	private int water; // 남은 생수병 갯수
+	private int coffee; // 남은 커피캔 갯수
+	private int coke; // 남은 콜라캔 갯수
+	private int orange; // 남은 오렌지 쥬스 갯수
+	private int cash; // 판매총액
+	private String when; //시간
+	
+	public VendingCustomer(String when, int water, int coffee, int coke, int orange, int cash){
+		this.when = when;
+		this.water = water;
+		this.coffee = coffee;
+		this.coke = coke;
+		this.orange = orange;
+		this.cash = cash;
+	}
+	public String getWhen(){
+		return when;
+	}
+	
+	public int getWater(){
+		return water;
+	}
+	
+	public int getCoffee(){
+		return coffee;
+	}
+	
+	public int getCoke(){
+		return coke;
+	}
+	
+	public int getOrange(){
+		return orange;
+	}
+	
+	public int getCash(){
+		return cash;
+	}
+	
+	public void setWater(int water){
+		this.water = water;
+	}
+	
+	public void setCoffee(int coffee){
+		this.coffee = coffee;
+	}
+	
+	public void setCoke(int coke){
+		this.coke = coke;
+	}
+	
+	public void setOrange(int orange){
+		this.orange = orange;
+	}
+	
+	public void setCash(int cash){
+		this.cash = cash;
+	}
+	
+}
