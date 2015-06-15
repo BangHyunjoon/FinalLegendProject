@@ -23,28 +23,27 @@ import javax.swing.table.TableColumnModel;
 import javax.swing.text.Document;
 
 public class VendingMain extends JFrame implements ActionListener {
-	JTextField idinput, win, cin, coin, oin, cashinput, mymoney;
-	JDialog window, sellinfo, stockinfo, cashinfo;
-	JTextArea sellprint, onepartprint, changeprint, tongprint;
-	JPasswordField pwinput;
-	JMenuItem mo, ms, mm, mc;
-	JMenuBar mb2, mb3;
+	JTextField idinput, win, cin, coin, oin, cashinput, mymoney; //GUI를 위한 변수들
+	JDialog window, sellinfo, stockinfo, cashinfo; //알림창을 띄우기 위한 변수들
+	JTextArea sellprint, onepartprint, changeprint, tongprint; //정보출력을 위한 변수들
+	JPasswordField pwinput; //비밀번호전용 필드
+	JMenuItem mo; //홈이동을 위한 변수
+	JMenuBar mb2; //홈이동을 위한 변수
 	JButton waterbutton, coffeebutton, cokebutton, orangebutton, manager,
 			guest, ok, cashinsert, orderfinish, selllist, stocklist, cashlist,
-			addbutton, changeinsert, modybutton, mybutton;
-	DefaultTableModel selltable, stocktable, cashtable;
-	JScrollPane st2, mt2, ct2, sellscroll;
-	JPanel st, main, login, check, sell;
-	CardLayout card;
-	Border eborder;
-	JRadioButton jbin, jbsell, jbwith, jbmody;
+			addbutton, changeinsert, modybutton, mybutton; //각종 기능을 실행하기 위한 버튼 변수들
+	DefaultTableModel selltable, stocktable, cashtable; //Table출력을 위한 변수들
+	JScrollPane st2, mt2, ct2, sellscroll; //판넬에 스크롤을 입히기 위한 변수들
+	JPanel st, main, login, check, sell; //메인 판넬 변수들
+	CardLayout card; //카드레이아웃을 위한 변
+	JRadioButton jbin, jbsell, jbwith, jbmody; //검색기능을 위한 버튼 변수들
 	int orderwater, ordercoffee, ordercoke, orderorange, ordermoney,
 			waterbottle, cokebottle, coffeebottle, orangebottle, total,
-			outmoney, jango = 0;
+			outmoney, jango = 0; //음료 재고, 수입 계산 등을 위한 변수들
 
-	ArrayList<VendingCustomer> vc = new ArrayList<VendingCustomer>();
-	ArrayList<VendingManager> vm = new ArrayList<VendingManager>();
-	ArrayList<VendingCashManager> vcm = new ArrayList<VendingCashManager>();
+	ArrayList<VendingCustomer> vc = new ArrayList<VendingCustomer>(); //판매리스트를 저장하는 list
+	ArrayList<VendingManager> vm = new ArrayList<VendingManager>(); //재고리스트를 저장하는 list
+	ArrayList<VendingCashManager> vcm = new ArrayList<VendingCashManager>(); //입출금리스트를 저장하는 list
 
 	VendingMain() {
 
@@ -223,6 +222,7 @@ public class VendingMain extends JFrame implements ActionListener {
 		orangebutton.addActionListener(this);
 		orangebutton.setBackground(Color.ORANGE);
 		orderfinish = new JButton("주문완료");
+		orderfinish.setBackground(Color.WHITE);
 		orderfinish.addActionListener(this);
 		selltop_drink_main.add(orderfinish);
 
@@ -330,11 +330,11 @@ public class VendingMain extends JFrame implements ActionListener {
 		toponepart.add("Center", buttongroup);
 		buttongroup.setLayout(new GridLayout(3, 1, 0, 20));
 
-		selllist = new JButton("판매");
+		selllist = new JButton("판매현황");
 		selllist.setBackground(Color.GREEN);
 		buttongroup.add(selllist);
 		selllist.addActionListener(this);
-		stocklist = new JButton("재고");
+		stocklist = new JButton("재고현황");
 		stocklist.setBackground(Color.GREEN);
 		buttongroup.add(stocklist);
 		stocklist.addActionListener(this);
@@ -516,7 +516,7 @@ public class VendingMain extends JFrame implements ActionListener {
 	}
 
 	@Override
-	public void actionPerformed(ActionEvent e) { //16번 메소드
+	public void actionPerformed(ActionEvent e) { 
 		String str = e.getActionCommand();
 		if (e.getSource() == manager) { // 관리자
 			totalload();
@@ -524,383 +524,340 @@ public class VendingMain extends JFrame implements ActionListener {
 					.getLastcash()));
 			card.show(getContentPane(), "a2");
 		}
-
 		else if (e.getSource() == guest) { // 손님
 			showmessage("환영합니다. 손님.", "무인 자판기");
 			totalload();
 			card.show(getContentPane(), "a3");
 		}
-
 		else if (str.equals("확인") || e.getSource() == idinput
 				|| e.getSource() == pwinput) {
-			String mid = idinput.getText();
-			String mpw = pwinput.getText();
-			String[] managerid = { "방현준" };
-			String[] managerpw = { "1234" };
-			if (mid.equals(managerid[0]) && mpw.equals(managerpw[0])) {
-				showmessage("환영합니다. 관리자님.", "로그인 성공");
-				idinput.setText("");
-				pwinput.setText("");
-				card.show(getContentPane(), "a4");
-			} else {
-				showmessage("아이디와 비밀번호를 확인해주세요.", "로그인 실패");
-			}
+			loginmethod();
 		}
-
 		else if (e.getSource() == cashinput) {
-			try {
-				int inordermoney = intchange(cashinput.getText());
-				if(inordermoney>0){
-					orderfinish.setEnabled(true);
-					ordermoney = sumloop(ordermoney, inordermoney);
-					sellprint.append("[입금확인] " + inordermoney + "원이 입금되었습니다."
-							+ "\n");
-					cashinput.setText("");
-					changeprint.setText("");
-					changeprint.append(stringchange(ordermoney));
-				}
-				else{
-					showmessage("금액을 확인해주세요.", "입금실패");
-				}
-				
-			} catch (NumberFormatException e2) {
-				showmessage("금액을 확인해주세요.", "입금실패");
-			}
-
+			takecash();
 		}
-
 		else if (e.getSource() == cashinsert) {
-			try {
-				int inordermoney = intchange(cashinput.getText());
-				if(inordermoney>0){
-					orderfinish.setEnabled(true);
-					ordermoney = sumloop(ordermoney, inordermoney);
-					sellprint.append("[입금확인] " + inordermoney + "원이 입금되었습니다."
-							+ "\n");
-					cashinput.setText("");
-					changeprint.setText("");
-					changeprint.append(stringchange(ordermoney));
-				}
-				else{
-					showmessage("금액을 확인해주세요.", "입금실패");
-				}
-				
-				
-			} catch (NumberFormatException e2) {
-				showmessage("금액을 확인해주세요.", "입금실패");
-			}
+			takecash();
 		}
-
 		else if (e.getSource() == waterbutton) {
-			if (ordermoney >= 500) {
-				if (vm.size() != 0 && vm.get(vm.size() - 1).getSwater() > 0) {
-					orderfinish.setEnabled(true);
-					orderwater++;
-					ordermoney = minusloop(ordermoney, 500);
-					total = sumloop(total, 500);
-					sellprint.append("시원한 생수 총 " + orderwater + "병이 주문되었습니다."
-							+ "\n");
-					changeprint.setText("");
-					changeprint.append(stringchange(ordermoney));
-				} else {
-					showmessage("죄송합니다. 해당 음료가 부족합니다.", "재고 부족");
-				}
-			} else {
-				showmessage("잔액이 부족합니다.", "잔액 부족");
-			}
+			inwater();
 		}
-
 		else if (e.getSource() == coffeebutton) {
-			if (ordermoney >= 1000) {
-				if (vm.size() != 0 && vm.get(vm.size() - 1).getScoffee() > 0) {
-					orderfinish.setEnabled(true);
-					ordercoffee++;
-					ordermoney = minusloop(ordermoney, 1000);
-					total = sumloop(total, 1000);
-					sellprint.append("시원한 커피 총 " + ordercoffee + "병이 주문되었습니다."
-							+ "\n");
-					changeprint.setText("");
-					changeprint.append(stringchange(ordermoney));
-				} else {
-					showmessage("죄송합니다. 해당 음료가 부족합니다.", "재고 부족");
-				}
-			} else {
-				showmessage("잔액이 부족합니다.", "잔액 부족");
-			}
-
-		} else if (e.getSource() == cokebutton) {
-			if (ordermoney >= 900) {
-				if (vm.size() != 0 && vm.get(vm.size() - 1).getScoke() > 0) {
-					orderfinish.setEnabled(true);
-					ordercoke++;
-					ordermoney = minusloop(ordermoney, 900);
-					total = sumloop(total, 900);
-					sellprint.append("시원한 콜라 총 " + ordercoke + "병이 주문되었습니다."
-							+ "\n");
-					changeprint.setText("");
-					changeprint.append(stringchange(ordermoney));
-				} else {
-					showmessage("죄송합니다. 해당 음료가 부족합니다.", "재고 부족");
-				}
-			} else {
-				showmessage("잔액이 부족합니다.", "잔액 부족");
-			}
-		} else if (e.getSource() == orangebutton) {
-			if (ordermoney >= 1200) {
-				if (vm.size() != 0 && vm.get(vm.size() - 1).getSorange() > 0) {
-					orderfinish.setEnabled(true);
-					orderorange++;
-					ordermoney = minusloop(ordermoney, 1200);
-					total = sumloop(total, 1200);
-					sellprint.append("오렌지쥬스 총 " + orderorange + "병이 주문되었습니다."
-							+ "\n");
-					changeprint.setText("");
-					changeprint.append(stringchange(ordermoney));
-				} else {
-					showmessage("죄송합니다. 해당 음료가 부족합니다.", "재고 부족");
-				}
-			} else {
-				showmessage("잔액이 부족합니다.", "잔액 부족");
-			}
+			incoffee();
+		} 
+		else if (e.getSource() == cokebutton) {
+			incoke();
+		} 
+		else if (e.getSource() == orangebutton) {
+			inorange();
 		}
-
 		else if (e.getSource() == changeinsert) {
-			if (ordermoney < 1) {
-				showmessage("남은 잔돈이 없습니다.", "잔액 부족");
-			} else {
-				int result = JOptionPane.showConfirmDialog(window,
-						"주문이 완료되셨습니까?", "잔돈 반환", JOptionPane.OK_CANCEL_OPTION,
-						JOptionPane.WARNING_MESSAGE, null);
-
-				if (result == 0) {// 확인
-					if (vc.size() < 1 && vm.size() < 1) {
-						sellprint.append("[완료] " + ordermoney + "원이 반환되었습니다."
-								+ "\n");
-						ordermoney = 0;
-						changeprint.setText("");
-					} else {
-						vc.add(new VendingCustomer(time(), orderwater,
-								ordercoffee, ordercoke, orderorange, total));
-						vm.add(new VendingManager("판매", time(), vm.get(
-								vm.size() - 1).getSwater()
-								- orderwater, vm.get(vm.size() - 1)
-								.getScoffee() - ordercoffee, vm.get(
-								vm.size() - 1).getScoke()
-								- ordercoke, vm.get(vm.size() - 1).getSorange()
-								- orderorange));
-						for (int i = 0; i < vc.size(); i++) { // 자판기 총 잔고 계산
-							jango = sumloop(jango, vc.get(i).getCash());
-						}
-						vcm.add(new VendingCashManager("입금", time(), total,
-								jango));
-						totalsave();
-						tongprint.setText("");
-						tongprint.setText(stringchange(jango)); // 관리자 잔고 칸에 잔액
-																// 출력
-						showmessage("거스름돈이 반환되었습니다.", "거스름돈 반환");
-						sellprint.append("[반환완료] " + ordermoney + "원이 반환되었습니다."
-								+ "\n");
-						ordermoney = makezero(ordermoney);
-						orderwater = makezero(orderwater);
-						ordercoffee = makezero(ordercoffee);
-						ordercoke = makezero(ordercoke);
-						orderorange = makezero(orderorange);
-						total = makezero(total);
-						changeprint.setText("");
-						orderfinish.setEnabled(false);
-						sellprint.setText("");// /
-					}
-				} else {/* 취소,x */
-				}
-			}
+			takechange();
 		}
-
 		else if (e.getSource() == orderfinish) {
-			if (orderwater == 0 && ordercoffee == 0 && ordercoke == 0
-					&& orderorange == 0) {
-				showmessage("주문 내역이 없습니다.", "주문 실패");
-			} else {
-				vc.add(new VendingCustomer(time(), orderwater, ordercoffee,
-						ordercoke, orderorange, total));
-				vm.add(new VendingManager("판매", time(), vm.get(vm.size() - 1)
-						.getSwater() - orderwater, vm.get(vm.size() - 1)
-						.getScoffee() - ordercoffee, vm.get(vm.size() - 1)
-						.getScoke() - ordercoke, vm.get(vm.size() - 1)
-						.getSorange() - orderorange));
-				for (int i = 0; i < vc.size(); i++) { // 자판기 총 잔고 계산
-					jango = sumloop(jango, vc.get(i).getCash());
-				}
-				vcm.add(new VendingCashManager("입금", time(), total, jango));
-				totalsave();
-				tongprint.setText("");
-				tongprint.setText(stringchange(jango)); // 관리자 잔고 칸에 잔액 출력
-				showmessage("거스름돈이 반환되었습니다.", "거스름돈 반환");
-				sellprint.append("[반환완료] " + ordermoney + "원이 반환되었습니다." + "\n");
-				ordermoney = makezero(ordermoney);
-				orderwater = makezero(orderwater);
-				ordercoffee = makezero(ordercoffee);
-				ordercoke = makezero(ordercoke);
-				orderorange = makezero(orderorange);
-				total = makezero(total);
-				changeprint.setText("");
-				orderfinish.setEnabled(false);
-				sellprint.setText("");
-			}
-
+			takeorder();
 		}
-		
 		else if (e.getSource() == addbutton) {
-			String w_drink = win.getText();
-			String c_drink = cin.getText();
-			String co_drink = coin.getText();
-			String o_drink = oin.getText();
-			try {
-				waterbottle = intchange(w_drink);
-				coffeebottle = intchange(c_drink);
-				cokebottle = intchange(co_drink);
-				orangebottle = intchange(o_drink);
-				if(waterbottle >0 && coffeebottle >0 && cokebottle >0 && orangebottle >0){
-					win.setText("");
-					cin.setText("");
-					coin.setText("");
-					oin.setText(""); // 기존 재고량에 새로 입력된 물품들을 추가
-					vm.add(new VendingManager("추가", time(), waterbottle
-							+ vm.get(vm.size() - 1).getSwater(), coffeebottle
-							+ vm.get(vm.size() - 1).getScoffee(), cokebottle
-							+ vm.get(vm.size() - 1).getScoke(), orangebottle
-							+ vm.get(vm.size() - 1).getSorange()));
-					showmessage("음료 추가가 완료되었습니다.", "충전 완료");
-					managersave();
-				}
-				else {
-					showmessage("수량을 확인해주세요.", "상품 추가 실패");	
-				}
-
-			} catch (NumberFormatException e3) {
-				showmessage("수량을 확인해주세요.", "상품 추가 실패");
-			}
-		} else if (e.getSource() == modybutton) {
-			String w_drink = win.getText();
-			String c_drink = cin.getText();
-			String co_drink = coin.getText();
-			String o_drink = oin.getText();
-			try {
-				waterbottle = intchange(w_drink);
-				coffeebottle = intchange(co_drink);
-				cokebottle = intchange(c_drink);
-				orangebottle = intchange(o_drink);
-				if(waterbottle >0 && coffeebottle >0 && cokebottle >0 && orangebottle >0){
-					win.setText("");
-					cin.setText("");
-					coin.setText("");
-					oin.setText("");
-					vm.add(new VendingManager("수정", time(), waterbottle,
-							coffeebottle, cokebottle, orangebottle));
-					showmessage("음료 재고 수정이 완료되었습니다.", "수정 완료");
-					managersave();
-				}
-				else{
-					showmessage("음료 재고 수정 수치를 확인해주세요.", "수정 실패");
-				}
-				
-			} catch (NumberFormatException e4) {
-				showmessage("음료 재고 수정 수치를 확인해주세요.", "수정 실패");
-			}
+			recharge();
 		}
-
+		else if (e.getSource() == modybutton) {
+			modify();
+		}
 		else if (e.getSource() == mybutton) {
-			try {
-				String mymoney1 = mymoney.getText();
-				outmoney = intchange(mymoney1);
-				if (vcm.get(vcm.size() - 1).getLastcash() >= outmoney) {
-					jango = vcm.get(vcm.size() - 1).getLastcash() - outmoney;
-					vcm.add(new VendingCashManager("출금", time(), outmoney,
-							jango));
-					cashsave();
-					mymoney.setText("");
-					tongprint.setText(stringchange(jango));
-					showmessage("출금이 완료되었습니다", "출금 완료");
-				} else {
-					showmessage("출금 금액이 초과되었습니다.", "잔고 부족");
-				}
-			} catch (NumberFormatException e5) {
-				showmessage("정확한 금액을 입력해주세요.", "입력 오류");
-			}
-
-		} else if (e.getSource() == mo) {
+			outcash();
+		} 
+		else if (e.getSource() == mo) {
 			card.show(getContentPane(), "a1");
-
-		} else if (e.getSource() == selllist) {
-			if (vc.size() == 0) {
-				showmessage("판매 내역이 없습니다.", "판매 현황 조회 실패");
-			} else {
-				customerload();
-				JTable st = null;
-				sellinfo = new JDialog();
-				sellinfo.setSize(800, 400);
-				String sellhead[] = { "순번", "날짜", "물", "커피", "콜라", "오렌지쥬스",
-						"총 구매액" };
-				String sellrow[][] = new String[vc.size()][7];
-				selltable = new DefaultTableModel(sellhead, 0);
-				st = new JTable(selltable);
-				st2 = new JScrollPane(st);
-				DefaultTableCellRenderer dcenter = new DefaultTableCellRenderer();
-				DefaultTableCellRenderer dright = new DefaultTableCellRenderer();
-				dcenter.setHorizontalAlignment(SwingConstants.CENTER);
-				dright.setHorizontalAlignment(SwingConstants.RIGHT);
-				TableColumnModel tcmSchedule = st.getColumnModel();
-				TableColumnModel tcmSchedule2 = st.getColumnModel();
-				for (int i = 0; i < 2; i++)
-					tcmSchedule.getColumn(i).setCellRenderer(dcenter);
-				for (int i = 2; i < 7; i++) {
-					tcmSchedule2.getColumn(i).setCellRenderer(dright);
-					tcmSchedule2.getColumn(i).setPreferredWidth(20);
-				}
-				sellinfo.add(st2);
-				selltable.setNumRows(0);
-				for (int i = 0; i < vc.size(); i++) {
-					sellrow[i][0] = stringchange(i + 1);
-					sellrow[i][1] = vc.get(i).getWhen();
-					sellrow[i][2] = stringchange(vc.get(i).getWater());
-					sellrow[i][3] = stringchange(vc.get(i).getCoffee());
-					sellrow[i][4] = stringchange(vc.get(i).getCoke());
-					sellrow[i][5] = stringchange(vc.get(i).getOrange());
-					sellrow[i][6] = stringchange(vc.get(i).getCash());
-					selltable.addRow(sellrow[i]);
-				}
-				st.setEnabled(false);
-				sellinfo.setVisible(true);
-			}
+		} 
+		else if (e.getSource() == selllist) {
+			mainselllist();
 		}
-
 		else if (e.getSource() == stocklist) {
-			managerload();
-			JTable mt = null;
-			stockinfo = new JDialog();
-			stockinfo.setSize(800, 400);
-			String stockhead[] = { "번호", "작업", "날짜", "총 물병", "총 커피병", "총 콜라병",
-					"총 오렌지쥬스병" };
-			String stockrow[][] = new String[vm.size()][7];
-			stocktable = new DefaultTableModel(stockhead, 0);
-			mt = new JTable(stocktable);
-			mt2 = new JScrollPane(mt);
-
+			mainstocklist();
+		}
+		else if (e.getSource() == cashlist) {
+			maincashlist();
+		}
+		else if (e.getSource() == jbsell) {
+			selllist();
+		}
+		else if (e.getSource() == jbin) {
+			addlist();
+		} 
+		else if (e.getSource() == jbmody) {
+			modilist();
+		} 
+		else if (e.getSource() == jbwith) {
+			withlist();
+		}
+	}
+	
+	void mainselllist(){ //1번 메소드
+		if (vc.size() == 0) {
+			showmessage("판매 내역이 없습니다.", "판매 현황 조회 실패");
+		} else {
+			customerload();
+			JTable st = null;
+			sellinfo = new JDialog();
+			sellinfo.setSize(800, 400);
+			String sellhead[] = { "순번", "날짜", "물", "커피", "콜라", "오렌지쥬스",
+					"총 구매액" };
+			String sellrow[][] = new String[vc.size()][7];
+			selltable = new DefaultTableModel(sellhead, 0);
+			st = new JTable(selltable);
+			st2 = new JScrollPane(st);
 			DefaultTableCellRenderer dcenter = new DefaultTableCellRenderer();
 			DefaultTableCellRenderer dright = new DefaultTableCellRenderer();
 			dcenter.setHorizontalAlignment(SwingConstants.CENTER);
 			dright.setHorizontalAlignment(SwingConstants.RIGHT);
-			TableColumnModel tcmSchedule = mt.getColumnModel();
-			TableColumnModel tcmSchedule2 = mt.getColumnModel();
-			for (int i = 0; i < 3; i++)
+			TableColumnModel tcmSchedule = st.getColumnModel();
+			TableColumnModel tcmSchedule2 = st.getColumnModel();
+			for (int i = 0; i < 2; i++)
 				tcmSchedule.getColumn(i).setCellRenderer(dcenter);
-			for (int i = 3; i < 7; i++) {
+			for (int i = 2; i < 7; i++) {
 				tcmSchedule2.getColumn(i).setCellRenderer(dright);
-				tcmSchedule2.getColumn(i).setPreferredWidth(30);
+				tcmSchedule2.getColumn(i).setPreferredWidth(20);
 			}
+			sellinfo.add(st2);
+			selltable.setNumRows(0);
+			for (int i = 0; i < vc.size(); i++) {
+				sellrow[i][0] = stringchange(i + 1);
+				sellrow[i][1] = vc.get(i).getWhen();
+				sellrow[i][2] = stringchange(vc.get(i).getWater());
+				sellrow[i][3] = stringchange(vc.get(i).getCoffee());
+				sellrow[i][4] = stringchange(vc.get(i).getCoke());
+				sellrow[i][5] = stringchange(vc.get(i).getOrange());
+				sellrow[i][6] = stringchange(vc.get(i).getCash());
+				selltable.addRow(sellrow[i]);
+			}
+			st.setEnabled(false);
+			sellinfo.setVisible(true);
+		}
+	}
+	
+	void maincashlist(){ //2번 메소드
+		cashload();
+		JTable ct = null;
+		cashinfo = new JDialog();
+		cashinfo.setSize(500, 300);
+		String cashhead[] = { "번호", "날짜", "작업", "잔액", "입출액" };
+		String cashrow[][] = new String[vcm.size()][5];
+		cashtable = new DefaultTableModel(cashhead, 0);
+		ct = new JTable(cashtable);
+		ct2 = new JScrollPane(ct);
 
-			stockinfo.add(mt2);
-			stocktable.setNumRows(0);
-			for (int i = 0; i < vm.size(); i++) {
+		DefaultTableCellRenderer dcenter = new DefaultTableCellRenderer();
+		DefaultTableCellRenderer dright = new DefaultTableCellRenderer();
+		dcenter.setHorizontalAlignment(SwingConstants.CENTER);
+		dright.setHorizontalAlignment(SwingConstants.RIGHT);
+		TableColumnModel tcmSchedule = ct.getColumnModel();
+		TableColumnModel tcmSchedule2 = ct.getColumnModel();
+		for (int i = 0; i < 3; i++)
+			tcmSchedule.getColumn(i).setCellRenderer(dcenter);
+
+		for (int i = 3; i < 5; i++) {
+			tcmSchedule2.getColumn(i).setCellRenderer(dright);
+			tcmSchedule2.getColumn(i).setPreferredWidth(30);
+		}
+
+		cashinfo.add(ct2);
+		cashtable.setNumRows(0);
+		for (int i = 0; i < vcm.size(); i++) {
+			cashrow[i][0] = stringchange(i + 1);
+			cashrow[i][1] = vcm.get(i).getCashtype();
+			cashrow[i][2] = vcm.get(i).getWhencash();
+			cashrow[i][3] = stringchange(vcm.get(i).getWithdrawcash());
+			cashrow[i][4] = stringchange(vcm.get(i).getLastcash());
+			cashtable.addRow(cashrow[i]);
+		}
+		ct.setEnabled(false);
+		cashinfo.setVisible(true);
+	}
+
+	void mainstocklist(){ //3번 메소드
+		managerload();
+		JTable mt = null;
+		stockinfo = new JDialog();
+		stockinfo.setSize(800, 400);
+		String stockhead[] = { "번호", "작업", "날짜", "총 물병", "총 커피병", "총 콜라병",
+				"총 오렌지쥬스병" };
+		String stockrow[][] = new String[vm.size()][7];
+		stocktable = new DefaultTableModel(stockhead, 0);
+		mt = new JTable(stocktable);
+		mt2 = new JScrollPane(mt);
+
+		DefaultTableCellRenderer dcenter = new DefaultTableCellRenderer();
+		DefaultTableCellRenderer dright = new DefaultTableCellRenderer();
+		dcenter.setHorizontalAlignment(SwingConstants.CENTER);
+		dright.setHorizontalAlignment(SwingConstants.RIGHT);
+		TableColumnModel tcmSchedule = mt.getColumnModel();
+		TableColumnModel tcmSchedule2 = mt.getColumnModel();
+		for (int i = 0; i < 3; i++)
+			tcmSchedule.getColumn(i).setCellRenderer(dcenter);
+		for (int i = 3; i < 7; i++) {
+			tcmSchedule2.getColumn(i).setCellRenderer(dright);
+			tcmSchedule2.getColumn(i).setPreferredWidth(30);
+		}
+
+		stockinfo.add(mt2);
+		stocktable.setNumRows(0);
+		for (int i = 0; i < vm.size(); i++) {
+			stockrow[i][0] = stringchange(i + 1);
+			stockrow[i][1] = vm.get(i).getType();
+			stockrow[i][2] = vm.get(i).getInwhen();
+			stockrow[i][3] = stringchange(vm.get(i).getSwater());
+			stockrow[i][4] = stringchange(vm.get(i).getScoffee());
+			stockrow[i][5] = stringchange(vm.get(i).getScoke());
+			stockrow[i][6] = stringchange(vm.get(i).getSorange());
+			stocktable.addRow(stockrow[i]);
+		}
+		mt.setEnabled(false);
+		stockinfo.setVisible(true);
+	}
+	
+	void takechange(){ //4번 메소드
+		if (ordermoney < 1) {
+			showmessage("남은 잔돈이 없습니다.", "잔액 부족");
+		} else {
+			int result = JOptionPane.showConfirmDialog(window,
+					"주문이 완료되셨습니까?", "잔돈 반환", JOptionPane.OK_CANCEL_OPTION,
+					JOptionPane.WARNING_MESSAGE, null);
+
+			if (result == 0) {// 확인
+				if (vc.size() < 1 && vm.size() < 1) {
+					sellprint.append("[완료] " + ordermoney + "원이 반환되었습니다."
+							+ "\n");
+					ordermoney = 0;
+					changeprint.setText("");
+				} else {
+					vc.add(new VendingCustomer(time(), orderwater,
+							ordercoffee, ordercoke, orderorange, total));
+					vm.add(new VendingManager("판매", time(), vm.get(
+							vm.size() - 1).getSwater()
+							- orderwater, vm.get(vm.size() - 1)
+							.getScoffee() - ordercoffee, vm.get(
+							vm.size() - 1).getScoke()
+							- ordercoke, vm.get(vm.size() - 1).getSorange()
+							- orderorange));
+					for (int i = 0; i < vc.size(); i++) { // 자판기 총 잔고 계산
+						jango = sumloop(jango, vc.get(i).getCash());
+					}
+					vcm.add(new VendingCashManager("입금", time(), total,
+							jango));
+					totalsave();
+					tongprint.setText("");
+					tongprint.setText(stringchange(jango)); // 관리자 잔고 칸에 잔액
+															// 출력
+					showmessage("거스름돈이 반환되었습니다.", "거스름돈 반환");
+					sellprint.append("[반환완료] " + ordermoney + "원이 반환되었습니다."
+							+ "\n");
+					ordermoney = makezero(ordermoney);
+					orderwater = makezero(orderwater);
+					ordercoffee = makezero(ordercoffee);
+					ordercoke = makezero(ordercoke);
+					orderorange = makezero(orderorange);
+					total = makezero(total);
+					changeprint.setText("");
+					orderfinish.setEnabled(false);
+					sellprint.setText("");// /
+				}
+			} else {/* 취소,x */
+			}
+		}
+	}
+	
+	void takeorder(){ //5번 메소드
+		if (orderwater == 0 && ordercoffee == 0 && ordercoke == 0
+				&& orderorange == 0) {
+			showmessage("주문 내역이 없습니다.", "주문 실패");
+		} else {
+			vc.add(new VendingCustomer(time(), orderwater, ordercoffee,
+					ordercoke, orderorange, total));
+			vm.add(new VendingManager("판매", time(), vm.get(vm.size() - 1)
+					.getSwater() - orderwater, vm.get(vm.size() - 1)
+					.getScoffee() - ordercoffee, vm.get(vm.size() - 1)
+					.getScoke() - ordercoke, vm.get(vm.size() - 1)
+					.getSorange() - orderorange));
+			for (int i = 0; i < vc.size(); i++) { // 자판기 총 잔고 계산
+				jango = sumloop(jango, vc.get(i).getCash());
+			}
+			vcm.add(new VendingCashManager("입금", time(), total, jango));
+			totalsave();
+			tongprint.setText("");
+			tongprint.setText(stringchange(jango)); // 관리자 잔고 칸에 잔액 출력
+			showmessage("거스름돈이 반환되었습니다.", "거스름돈 반환");
+			sellprint.append("[반환완료] " + ordermoney + "원이 반환되었습니다." + "\n");
+			ordermoney = makezero(ordermoney);
+			orderwater = makezero(orderwater);
+			ordercoffee = makezero(ordercoffee);
+			ordercoke = makezero(ordercoke);
+			orderorange = makezero(orderorange);
+			total = makezero(total);
+			changeprint.setText("");
+			orderfinish.setEnabled(false);
+			sellprint.setText("");
+		}
+
+	}
+	
+	void modify(){ //6번 메소드
+		String w_drink = win.getText();
+		String c_drink = cin.getText();
+		String co_drink = coin.getText();
+		String o_drink = oin.getText();
+		try {
+			waterbottle = intchange(w_drink);
+			coffeebottle = intchange(co_drink);
+			cokebottle = intchange(c_drink);
+			orangebottle = intchange(o_drink);
+			if(waterbottle >0 && coffeebottle >0 && cokebottle >0 && orangebottle >0){
+				win.setText("");
+				cin.setText("");
+				coin.setText("");
+				oin.setText("");
+				vm.add(new VendingManager("수정", time(), waterbottle,
+						coffeebottle, cokebottle, orangebottle));
+				showmessage("음료 재고 수정이 완료되었습니다.", "수정 완료");
+				managersave();
+			}
+			else{
+				showmessage("음료 재고 수정 수치를 확인해주세요.", "수정 실패");
+			}
+			
+		} catch (NumberFormatException e4) {
+			showmessage("음료 재고 수정 수치를 확인해주세요.", "수정 실패");
+		}
+	}
+	
+	void selllist(){ //7번 메소드
+		managerload();
+		JTable mt = null;
+		stockinfo = new JDialog();
+		stockinfo.setSize(800, 400);
+		String stockhead[] = { "번호", "작업", "날짜", "총 물병", "총 커피병", "총 콜라병",
+				"총 오렌지쥬스병" };
+		String stockrow[][] = new String[vm.size()][7];
+		stocktable = new DefaultTableModel(stockhead, 0);
+		mt = new JTable(stocktable);
+		mt2 = new JScrollPane(mt);
+
+		DefaultTableCellRenderer dcenter = new DefaultTableCellRenderer();
+		DefaultTableCellRenderer dright = new DefaultTableCellRenderer();
+		dcenter.setHorizontalAlignment(SwingConstants.CENTER);
+		dright.setHorizontalAlignment(SwingConstants.RIGHT);
+		TableColumnModel tcmSchedule = mt.getColumnModel();
+		TableColumnModel tcmSchedule2 = mt.getColumnModel();
+		for (int i = 0; i < 3; i++)
+			tcmSchedule.getColumn(i).setCellRenderer(dcenter);
+		for (int i = 3; i < 7; i++) {
+			tcmSchedule2.getColumn(i).setCellRenderer(dright);
+			tcmSchedule2.getColumn(i).setPreferredWidth(30);
+		}
+
+		stockinfo.add(mt2);
+		stocktable.setNumRows(0);
+		for (int i = 0; i < vm.size(); i++) {
+			if (vm.get(i).getType().equals("판매")) {
 				stockrow[i][0] = stringchange(i + 1);
 				stockrow[i][1] = vm.get(i).getType();
 				stockrow[i][2] = vm.get(i).getInwhen();
@@ -910,38 +867,125 @@ public class VendingMain extends JFrame implements ActionListener {
 				stockrow[i][6] = stringchange(vm.get(i).getSorange());
 				stocktable.addRow(stockrow[i]);
 			}
-			mt.setEnabled(false);
-			stockinfo.setVisible(true);
+		}
+		mt.setEnabled(false);
+		stockinfo.setVisible(true);
+	}
+	
+	void addlist(){ //8번 메소드
+		managerload();
+		JTable mt = null;
+		stockinfo = new JDialog();
+		stockinfo.setSize(800, 400);
+		String stockhead[] = { "번호", "작업", "날짜", "총 물병", "총 커피병", "총 콜라병",
+				"총 오렌지쥬스병" };
+		String stockrow[][] = new String[vm.size()][7];
+		stocktable = new DefaultTableModel(stockhead, 0);
+		mt = new JTable(stocktable);
+		mt2 = new JScrollPane(mt);
+
+		DefaultTableCellRenderer dcenter = new DefaultTableCellRenderer();
+		DefaultTableCellRenderer dright = new DefaultTableCellRenderer();
+		dcenter.setHorizontalAlignment(SwingConstants.CENTER);
+		dright.setHorizontalAlignment(SwingConstants.RIGHT);
+		TableColumnModel tcmSchedule = mt.getColumnModel();
+		TableColumnModel tcmSchedule2 = mt.getColumnModel();
+		for (int i = 0; i < 3; i++)
+			tcmSchedule.getColumn(i).setCellRenderer(dcenter);
+		for (int i = 3; i < 7; i++) {
+			tcmSchedule2.getColumn(i).setCellRenderer(dright);
+			tcmSchedule2.getColumn(i).setPreferredWidth(30);
 		}
 
-		else if (e.getSource() == cashlist) {
-			cashload();
-			JTable ct = null;
-			cashinfo = new JDialog();
-			cashinfo.setSize(500, 300);
-			String cashhead[] = { "번호", "날짜", "작업", "잔액", "입출액" };
-			String cashrow[][] = new String[vcm.size()][5];
-			cashtable = new DefaultTableModel(cashhead, 0);
-			ct = new JTable(cashtable);
-			ct2 = new JScrollPane(ct);
-
-			DefaultTableCellRenderer dcenter = new DefaultTableCellRenderer();
-			DefaultTableCellRenderer dright = new DefaultTableCellRenderer();
-			dcenter.setHorizontalAlignment(SwingConstants.CENTER);
-			dright.setHorizontalAlignment(SwingConstants.RIGHT);
-			TableColumnModel tcmSchedule = ct.getColumnModel();
-			TableColumnModel tcmSchedule2 = ct.getColumnModel();
-			for (int i = 0; i < 3; i++)
-				tcmSchedule.getColumn(i).setCellRenderer(dcenter);
-
-			for (int i = 3; i < 5; i++) {
-				tcmSchedule2.getColumn(i).setCellRenderer(dright);
-				tcmSchedule2.getColumn(i).setPreferredWidth(30);
+		stockinfo.add(mt2);
+		stocktable.setNumRows(0);
+		for (int i = 0; i < vm.size(); i++) {
+			if (vm.get(i).getType().equals("추가")) {
+				stockrow[i][0] = stringchange(i + 1);
+				stockrow[i][1] = vm.get(i).getType();
+				stockrow[i][2] = vm.get(i).getInwhen();
+				stockrow[i][3] = stringchange(vm.get(i).getSwater());
+				stockrow[i][4] = stringchange(vm.get(i).getScoffee());
+				stockrow[i][5] = stringchange(vm.get(i).getScoke());
+				stockrow[i][6] = stringchange(vm.get(i).getSorange());
+				stocktable.addRow(stockrow[i]);
 			}
+		}
+		mt.setEnabled(false);
+		stockinfo.setVisible(true);
+	}
+	
+	void modilist(){ //9번 메소드
+		managerload();
+		JTable mt = null;
+		stockinfo = new JDialog();
+		stockinfo.setSize(800, 400);
+		String stockhead[] = { "번호", "작업", "날짜", "총 물병", "총 커피병", "총 콜라병",
+				"총 오렌지쥬스병" };
+		String stockrow[][] = new String[vm.size()][7];
+		stocktable = new DefaultTableModel(stockhead, 0);
+		mt = new JTable(stocktable);
+		mt2 = new JScrollPane(mt);
 
-			cashinfo.add(ct2);
-			cashtable.setNumRows(0);
-			for (int i = 0; i < vcm.size(); i++) {
+		DefaultTableCellRenderer dcenter = new DefaultTableCellRenderer();
+		DefaultTableCellRenderer dright = new DefaultTableCellRenderer();
+		dcenter.setHorizontalAlignment(SwingConstants.CENTER);
+		dright.setHorizontalAlignment(SwingConstants.RIGHT);
+		TableColumnModel tcmSchedule = mt.getColumnModel();
+		TableColumnModel tcmSchedule2 = mt.getColumnModel();
+		for (int i = 0; i < 3; i++)
+			tcmSchedule.getColumn(i).setCellRenderer(dcenter);
+		for (int i = 3; i < 7; i++) {
+			tcmSchedule2.getColumn(i).setCellRenderer(dright);
+			tcmSchedule2.getColumn(i).setPreferredWidth(30);
+		}
+		stockinfo.add(mt2);
+		stocktable.setNumRows(0);
+		for (int i = 0; i < vm.size(); i++) {
+			if (vm.get(i).getType().equals("수정")) {
+				stockrow[i][0] = stringchange(i + 1);
+				stockrow[i][1] = vm.get(i).getType();
+				stockrow[i][2] = vm.get(i).getInwhen();
+				stockrow[i][3] = stringchange(vm.get(i).getSwater());
+				stockrow[i][4] = stringchange(vm.get(i).getScoffee());
+				stockrow[i][5] = stringchange(vm.get(i).getScoke());
+				stockrow[i][6] = stringchange(vm.get(i).getSorange());
+				stocktable.addRow(stockrow[i]);
+			}
+		}
+		mt.setEnabled(false);
+		stockinfo.setVisible(true);
+	}
+	
+	void withlist(){ //10번 메소드
+		cashload();
+		JTable ct = null;
+		cashinfo = new JDialog();
+		cashinfo.setSize(500, 300);
+		String cashhead[] = { "번호", "작업", "날짜", "잔액", "입출액" };
+		String cashrow[][] = new String[vcm.size()][5];
+		cashtable = new DefaultTableModel(cashhead, 0);
+		ct = new JTable(cashtable);
+		ct2 = new JScrollPane(ct);
+
+		DefaultTableCellRenderer dcenter = new DefaultTableCellRenderer();
+		DefaultTableCellRenderer dright = new DefaultTableCellRenderer();
+		dcenter.setHorizontalAlignment(SwingConstants.CENTER);
+		dright.setHorizontalAlignment(SwingConstants.RIGHT);
+		TableColumnModel tcmSchedule = ct.getColumnModel();
+		TableColumnModel tcmSchedule2 = ct.getColumnModel();
+		for (int i = 0; i < 3; i++)
+			tcmSchedule.getColumn(i).setCellRenderer(dcenter);
+
+		for (int i = 3; i < 5; i++) {
+			tcmSchedule2.getColumn(i).setCellRenderer(dright);
+			tcmSchedule2.getColumn(i).setPreferredWidth(30);
+		}
+
+		cashinfo.add(ct2);
+		cashtable.setNumRows(0);
+		for (int i = 0; i < vcm.size(); i++) {
+			if (vcm.get(i).getCashtype().equals("출금")) {
 				cashrow[i][0] = stringchange(i + 1);
 				cashrow[i][1] = vcm.get(i).getCashtype();
 				cashrow[i][2] = vcm.get(i).getWhencash();
@@ -949,218 +993,222 @@ public class VendingMain extends JFrame implements ActionListener {
 				cashrow[i][4] = stringchange(vcm.get(i).getLastcash());
 				cashtable.addRow(cashrow[i]);
 			}
-			ct.setEnabled(false);
-			cashinfo.setVisible(true);
 		}
-
-		else if (e.getSource() == jbsell) {
-			managerload();
-			JTable mt = null;
-			stockinfo = new JDialog();
-			stockinfo.setSize(800, 400);
-			String stockhead[] = { "번호", "작업", "날짜", "총 물병", "총 커피병", "총 콜라병",
-					"총 오렌지쥬스병" };
-			String stockrow[][] = new String[vm.size()][7];
-			stocktable = new DefaultTableModel(stockhead, 0);
-			mt = new JTable(stocktable);
-			mt2 = new JScrollPane(mt);
-
-			DefaultTableCellRenderer dcenter = new DefaultTableCellRenderer();
-			DefaultTableCellRenderer dright = new DefaultTableCellRenderer();
-			dcenter.setHorizontalAlignment(SwingConstants.CENTER);
-			dright.setHorizontalAlignment(SwingConstants.RIGHT);
-			TableColumnModel tcmSchedule = mt.getColumnModel();
-			TableColumnModel tcmSchedule2 = mt.getColumnModel();
-			for (int i = 0; i < 3; i++)
-				tcmSchedule.getColumn(i).setCellRenderer(dcenter);
-			for (int i = 3; i < 7; i++) {
-				tcmSchedule2.getColumn(i).setCellRenderer(dright);
-				tcmSchedule2.getColumn(i).setPreferredWidth(30);
+		ct.setEnabled(false);
+		cashinfo.setVisible(true);
+	
+	}
+	
+	void outcash(){ //11번 메소드
+		try {
+			String mymoney1 = mymoney.getText();
+			outmoney = intchange(mymoney1);
+			if (vcm.get(vcm.size() - 1).getLastcash() >= outmoney) {
+				jango = vcm.get(vcm.size() - 1).getLastcash() - outmoney;
+				vcm.add(new VendingCashManager("출금", time(), outmoney,
+						jango));
+				cashsave();
+				mymoney.setText("");
+				tongprint.setText(stringchange(jango));
+				showmessage("출금이 완료되었습니다", "출금 완료");
+			} else {
+				showmessage("출금 금액이 초과되었습니다.", "잔고 부족");
 			}
-
-			stockinfo.add(mt2);
-			stocktable.setNumRows(0);
-			for (int i = 0; i < vm.size(); i++) {
-				if (vm.get(i).getType().equals("판매")) {
-					stockrow[i][0] = stringchange(i + 1);
-					stockrow[i][1] = vm.get(i).getType();
-					stockrow[i][2] = vm.get(i).getInwhen();
-					stockrow[i][3] = stringchange(vm.get(i).getSwater());
-					stockrow[i][4] = stringchange(vm.get(i).getScoffee());
-					stockrow[i][5] = stringchange(vm.get(i).getScoke());
-					stockrow[i][6] = stringchange(vm.get(i).getSorange());
-					stocktable.addRow(stockrow[i]);
-				}
-			}
-			mt.setEnabled(false);
-			stockinfo.setVisible(true);
-		} else if (e.getSource() == jbin) {
-			managerload();
-			JTable mt = null;
-			stockinfo = new JDialog();
-			stockinfo.setSize(800, 400);
-			String stockhead[] = { "번호", "작업", "날짜", "총 물병", "총 커피병", "총 콜라병",
-					"총 오렌지쥬스병" };
-			String stockrow[][] = new String[vm.size()][7];
-			stocktable = new DefaultTableModel(stockhead, 0);
-			mt = new JTable(stocktable);
-			mt2 = new JScrollPane(mt);
-
-			DefaultTableCellRenderer dcenter = new DefaultTableCellRenderer();
-			DefaultTableCellRenderer dright = new DefaultTableCellRenderer();
-			dcenter.setHorizontalAlignment(SwingConstants.CENTER);
-			dright.setHorizontalAlignment(SwingConstants.RIGHT);
-			TableColumnModel tcmSchedule = mt.getColumnModel();
-			TableColumnModel tcmSchedule2 = mt.getColumnModel();
-			for (int i = 0; i < 3; i++)
-				tcmSchedule.getColumn(i).setCellRenderer(dcenter);
-			for (int i = 3; i < 7; i++) {
-				tcmSchedule2.getColumn(i).setCellRenderer(dright);
-				tcmSchedule2.getColumn(i).setPreferredWidth(30);
-			}
-
-			stockinfo.add(mt2);
-			stocktable.setNumRows(0);
-			for (int i = 0; i < vm.size(); i++) {
-				if (vm.get(i).getType().equals("추가")) {
-					stockrow[i][0] = stringchange(i + 1);
-					stockrow[i][1] = vm.get(i).getType();
-					stockrow[i][2] = vm.get(i).getInwhen();
-					stockrow[i][3] = stringchange(vm.get(i).getSwater());
-					stockrow[i][4] = stringchange(vm.get(i).getScoffee());
-					stockrow[i][5] = stringchange(vm.get(i).getScoke());
-					stockrow[i][6] = stringchange(vm.get(i).getSorange());
-					stocktable.addRow(stockrow[i]);
-				}
-			}
-			mt.setEnabled(false);
-			stockinfo.setVisible(true);
-		} else if (e.getSource() == jbmody) {
-			managerload();
-			JTable mt = null;
-			stockinfo = new JDialog();
-			stockinfo.setSize(800, 400);
-			String stockhead[] = { "번호", "작업", "날짜", "총 물병", "총 커피병", "총 콜라병",
-					"총 오렌지쥬스병" };
-			String stockrow[][] = new String[vm.size()][7];
-			stocktable = new DefaultTableModel(stockhead, 0);
-			mt = new JTable(stocktable);
-			mt2 = new JScrollPane(mt);
-
-			DefaultTableCellRenderer dcenter = new DefaultTableCellRenderer();
-			DefaultTableCellRenderer dright = new DefaultTableCellRenderer();
-			dcenter.setHorizontalAlignment(SwingConstants.CENTER);
-			dright.setHorizontalAlignment(SwingConstants.RIGHT);
-			TableColumnModel tcmSchedule = mt.getColumnModel();
-			TableColumnModel tcmSchedule2 = mt.getColumnModel();
-			for (int i = 0; i < 3; i++)
-				tcmSchedule.getColumn(i).setCellRenderer(dcenter);
-			for (int i = 3; i < 7; i++) {
-				tcmSchedule2.getColumn(i).setCellRenderer(dright);
-				tcmSchedule2.getColumn(i).setPreferredWidth(30);
-			}
-			stockinfo.add(mt2);
-			stocktable.setNumRows(0);
-			for (int i = 0; i < vm.size(); i++) {
-				if (vm.get(i).getType().equals("수정")) {
-					stockrow[i][0] = stringchange(i + 1);
-					stockrow[i][1] = vm.get(i).getType();
-					stockrow[i][2] = vm.get(i).getInwhen();
-					stockrow[i][3] = stringchange(vm.get(i).getSwater());
-					stockrow[i][4] = stringchange(vm.get(i).getScoffee());
-					stockrow[i][5] = stringchange(vm.get(i).getScoke());
-					stockrow[i][6] = stringchange(vm.get(i).getSorange());
-					stocktable.addRow(stockrow[i]);
-				}
-			}
-			mt.setEnabled(false);
-			stockinfo.setVisible(true);
-		} else if (e.getSource() == jbwith) {
-			cashload();
-			JTable ct = null;
-			cashinfo = new JDialog();
-			cashinfo.setSize(500, 300);
-			String cashhead[] = { "번호", "작업", "날짜", "잔액", "입출액" };
-			String cashrow[][] = new String[vcm.size()][5];
-			cashtable = new DefaultTableModel(cashhead, 0);
-			ct = new JTable(cashtable);
-			ct2 = new JScrollPane(ct);
-
-			DefaultTableCellRenderer dcenter = new DefaultTableCellRenderer();
-			DefaultTableCellRenderer dright = new DefaultTableCellRenderer();
-			dcenter.setHorizontalAlignment(SwingConstants.CENTER);
-			dright.setHorizontalAlignment(SwingConstants.RIGHT);
-			TableColumnModel tcmSchedule = ct.getColumnModel();
-			TableColumnModel tcmSchedule2 = ct.getColumnModel();
-			for (int i = 0; i < 3; i++)
-				tcmSchedule.getColumn(i).setCellRenderer(dcenter);
-
-			for (int i = 3; i < 5; i++) {
-				tcmSchedule2.getColumn(i).setCellRenderer(dright);
-				tcmSchedule2.getColumn(i).setPreferredWidth(30);
-			}
-
-			cashinfo.add(ct2);
-			cashtable.setNumRows(0);
-			for (int i = 0; i < vcm.size(); i++) {
-				if (vcm.get(i).getCashtype().equals("출금")) {
-					cashrow[i][0] = stringchange(i + 1);
-					cashrow[i][1] = vcm.get(i).getCashtype();
-					cashrow[i][2] = vcm.get(i).getWhencash();
-					cashrow[i][3] = stringchange(vcm.get(i).getWithdrawcash());
-					cashrow[i][4] = stringchange(vcm.get(i).getLastcash());
-					cashtable.addRow(cashrow[i]);
-				}
-			}
-			ct.setEnabled(false);
-			cashinfo.setVisible(true);
+		} catch (NumberFormatException e5) {
+			showmessage("정확한 금액을 입력해주세요.", "입력 오류");
 		}
 	}
+	
+	void recharge(){ //12번 메소드
+		String w_drink = win.getText();
+		String c_drink = cin.getText();
+		String co_drink = coin.getText();
+		String o_drink = oin.getText();
+		try {
+			waterbottle = intchange(w_drink);
+			coffeebottle = intchange(c_drink);
+			cokebottle = intchange(co_drink);
+			orangebottle = intchange(o_drink);
+			if(waterbottle >0 && coffeebottle >0 && cokebottle >0 && orangebottle >0){
+				win.setText("");
+				cin.setText("");
+				coin.setText("");
+				oin.setText(""); // 기존 재고량에 새로 입력된 물품들을 추가
+				vm.add(new VendingManager("추가", time(), waterbottle
+						+ vm.get(vm.size() - 1).getSwater(), coffeebottle
+						+ vm.get(vm.size() - 1).getScoffee(), cokebottle
+						+ vm.get(vm.size() - 1).getScoke(), orangebottle
+						+ vm.get(vm.size() - 1).getSorange()));
+				showmessage("음료 추가가 완료되었습니다.", "충전 완료");
+				managersave();
+			}
+			else {
+				showmessage("수량을 확인해주세요.", "상품 추가 실패");	
+			}
 
-	int sumloop(int a, int b) { //1번 메소드
+		} catch (NumberFormatException e3) {
+			showmessage("수량을 확인해주세요.", "상품 추가 실패");
+		}
+	}
+	
+	void loginmethod(){ //13번 메소드
+		String mid = idinput.getText();
+		String mpw = pwinput.getText();
+		String[] managerid = { "방현준" };
+		String[] managerpw = { "1234" };
+		if (mid.equals(managerid[0]) && mpw.equals(managerpw[0])) {
+			showmessage("환영합니다. 관리자님.", "로그인 성공");
+			idinput.setText("");
+			pwinput.setText("");
+			card.show(getContentPane(), "a4");
+		} else {
+			showmessage("아이디와 비밀번호를 확인해주세요.", "로그인 실패");
+		}
+	}
+	
+	void takecash(){ //14번 메소드
+		try {
+			int inordermoney = intchange(cashinput.getText());
+			if(inordermoney>0){
+				orderfinish.setEnabled(true);
+				ordermoney = sumloop(ordermoney, inordermoney);
+				sellprint.append("[입금확인] " + inordermoney + "원이 입금되었습니다."
+						+ "\n");
+				cashinput.setText("");
+				changeprint.setText("");
+				changeprint.append(stringchange(ordermoney));
+			}
+			else{
+				showmessage("금액을 확인해주세요.", "입금실패");
+			}
+			
+		} catch (NumberFormatException e2) {
+			showmessage("금액을 확인해주세요.", "입금실패");
+		}
+	}
+	
+	void inwater(){ //15번 메소드
+		if (ordermoney >= 500) {
+			if (vm.size() != 0 && vm.get(vm.size() - 1).getSwater() > 0) {
+				orderfinish.setEnabled(true);
+				orderwater++;
+				ordermoney = minusloop(ordermoney, 500);
+				total = sumloop(total, 500);
+				sellprint.append("시원한 생수 총 " + orderwater + "병이 주문되었습니다."
+						+ "\n");
+				changeprint.setText("");
+				changeprint.append(stringchange(ordermoney));
+			} else {
+				showmessage("죄송합니다. 해당 음료가 부족합니다.", "재고 부족");
+			}
+		} else {
+			showmessage("잔액이 부족합니다.", "잔액 부족");
+		}
+	}
+	
+	void incoffee(){ //16번 메소드
+		if (ordermoney >= 1000) {
+			if (vm.size() != 0 && vm.get(vm.size() - 1).getScoffee() > 0) {
+				orderfinish.setEnabled(true);
+				ordercoffee++;
+				ordermoney = minusloop(ordermoney, 1000);
+				total = sumloop(total, 1000);
+				sellprint.append("시원한 커피 총 " + ordercoffee + "병이 주문되었습니다."
+						+ "\n");
+				changeprint.setText("");
+				changeprint.append(stringchange(ordermoney));
+			} 
+			else {
+				showmessage("죄송합니다. 해당 음료가 부족합니다.", "재고 부족");
+			}
+		} 
+		else {
+			showmessage("잔액이 부족합니다.", "잔액 부족");
+		}
+	}
+	
+	void incoke(){ //17번 메소드
+		if (ordermoney >= 900) {
+			if (vm.size() != 0 && vm.get(vm.size() - 1).getScoke() > 0) {
+				orderfinish.setEnabled(true);
+				ordercoke++;
+				ordermoney = minusloop(ordermoney, 900);
+				total = sumloop(total, 900);
+				sellprint.append("시원한 콜라 총 " + ordercoke + "병이 주문되었습니다."
+						+ "\n");
+				changeprint.setText("");
+				changeprint.append(stringchange(ordermoney));
+			} else {
+				showmessage("죄송합니다. 해당 음료가 부족합니다.", "재고 부족");
+			}
+		} else {
+			showmessage("잔액이 부족합니다.", "잔액 부족");
+		}
+	}
+	
+	void inorange(){ //18번 메소드
+		if (ordermoney >= 1200) {
+			if (vm.size() != 0 && vm.get(vm.size() - 1).getSorange() > 0) {
+				orderfinish.setEnabled(true);
+				orderorange++;
+				ordermoney = minusloop(ordermoney, 1200);
+				total = sumloop(total, 1200);
+				sellprint.append("오렌지쥬스 총 " + orderorange + "병이 주문되었습니다."
+						+ "\n");
+				changeprint.setText("");
+				changeprint.append(stringchange(ordermoney));
+			} else {
+				showmessage("죄송합니다. 해당 음료가 부족합니다.", "재고 부족");
+			}
+		} else {
+			showmessage("잔액이 부족합니다.", "잔액 부족");
+		}
+	}
+	
+	int sumloop(int a, int b) {  //19번 메소드
 		a = a + b;
 		return a;
 	}
 
-	int minusloop(int a, int b) { //2번 메소드
+	int minusloop(int a, int b) {  //20번 메소드
 		a = a - b;
 		return a;
 	}
 
-	int intchange(String a) { //3번 메소드
+	int intchange(String a) { //21번 메소드
 		int b = Integer.parseInt(a);
 		return b;
 	}
 
-	String stringchange(int a) { //4번 메소드
+	String stringchange(int a) {  //22번 메소드
 		String b = String.valueOf(a);
 		return b;
 	}
 
-	void showmessage(String m, String t) { //5번 메소드
+	void showmessage(String m, String t) {  //23번 메소드
 		JOptionPane.showMessageDialog(window, m, t,
 				JOptionPane.INFORMATION_MESSAGE);
 	}
 
-	String time() { //6번 메소드
+	String time() {  //24번 메소드
 		Date time = new Date();
 		SimpleDateFormat h = new SimpleDateFormat("yy/MM/dd HH:mm:ss");
 		return h.format(time);
 	}
 
-	int makezero(int a) { //7번 메소드
+	int makezero(int a) {  //25번 메소드
 		a = 0;
 		return a;
 	}
 
-	void customerload() { //8번 메소드
+	void customerload() {  //26번 메소드
 		FileInputStream fin = null;
 		ObjectInputStream ois = null;
 		try {
 			fin = new FileInputStream("customerlist.dat");
 			ois = new ObjectInputStream(fin);
 			vc = (ArrayList) ois.readObject();
-			System.out.println("vc로드됨");
+			System.out.println("고객 이용 데이터가 로드되었습니다.");
 		} catch (Exception ex) {
 		} finally {
 			try {
@@ -1172,14 +1220,14 @@ public class VendingMain extends JFrame implements ActionListener {
 		}
 	}
 
-	void managerload() { //9번 메소드
+	void managerload() {  //27번 메소드
 		FileInputStream fin = null;
 		ObjectInputStream ois = null;
 		try {
 			fin = new FileInputStream("managerlist.dat");
 			ois = new ObjectInputStream(fin);
 			vm = (ArrayList) ois.readObject();
-			System.out.println("vm로드됨");
+			System.out.println("재고 정보 데이터가 로드되었습니다.");
 		} catch (Exception ex) {
 		} finally {
 			try {
@@ -1190,14 +1238,14 @@ public class VendingMain extends JFrame implements ActionListener {
 		}
 	}
 
-	void cashload() { //10번 메소드
+	void cashload() {  //28번 메소드
 		FileInputStream fin = null;
 		ObjectInputStream ois = null;
 		try {
 			fin = new FileInputStream("cashlist.dat");
 			ois = new ObjectInputStream(fin);
 			vcm = (ArrayList) ois.readObject();
-			System.out.println("vcm로드됨");
+			System.out.println("입출금 데이터가 로드되었습니다.");
 		} catch (Exception ex) {
 		} finally {
 			try {
@@ -1208,7 +1256,7 @@ public class VendingMain extends JFrame implements ActionListener {
 		}
 	}
 
-	void customersave() { //11번 메소드
+	void customersave() {  //29번 메소드
 		FileOutputStream fout = null;
 		ObjectOutputStream oos = null;
 		try {
@@ -1216,7 +1264,7 @@ public class VendingMain extends JFrame implements ActionListener {
 			oos = new ObjectOutputStream(fout);
 			oos.writeObject(vc);
 			oos.reset();
-			System.out.println("커스텀저장되었습니다.");
+			System.out.println("고객 이용 정보가 저장되었습니다.");
 		} catch (Exception ex) {
 		} finally {
 			try {
@@ -1227,7 +1275,7 @@ public class VendingMain extends JFrame implements ActionListener {
 		}
 	}
 
-	void managersave() { //12번 메소드
+	void managersave() {  //30번 메소드
 		FileOutputStream fout = null;
 		ObjectOutputStream oos = null;
 		try {
@@ -1235,7 +1283,7 @@ public class VendingMain extends JFrame implements ActionListener {
 			oos = new ObjectOutputStream(fout);
 			oos.writeObject(vm);
 			oos.reset();
-			System.out.println("매니저저장되었습니다.");
+			System.out.println("재고 정보가 저장되었습니다.");
 		} catch (Exception ex) {
 		} finally {
 			try {
@@ -1246,7 +1294,7 @@ public class VendingMain extends JFrame implements ActionListener {
 		}
 	}
 
-	void cashsave() { //13번 메소드
+	void cashsave() {  //31번 메소드
 		FileOutputStream fout = null;
 		ObjectOutputStream oos = null;
 		try {
@@ -1254,7 +1302,7 @@ public class VendingMain extends JFrame implements ActionListener {
 			oos = new ObjectOutputStream(fout);
 			oos.writeObject(vcm);
 			oos.reset();
-			System.out.println("캐시저장되었습니다.");
+			System.out.println("입출금 내역 데이터가 저장되었습니다.");
 		} catch (Exception ex) {
 		} finally {
 			try {
@@ -1265,13 +1313,13 @@ public class VendingMain extends JFrame implements ActionListener {
 		}
 	}
 
-	void totalload() { //14번 메소드
+	void totalload() {  //32번 메소드
 		customerload();
 		managerload();
 		cashload();
 	}
 
-	void totalsave() { //15번 메소드
+	void totalsave() {  //33번 메소드
 		customersave();
 		managersave();
 		cashsave();
