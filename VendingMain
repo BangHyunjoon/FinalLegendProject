@@ -1,0 +1,1279 @@
+package finalproject;
+
+import java.awt.*;
+import java.awt.event.*;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.Date;
+import java.util.Iterator;
+
+import javax.swing.*;
+import javax.swing.border.Border;
+import javax.swing.border.LineBorder;
+import javax.swing.border.TitledBorder;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumnModel;
+import javax.swing.text.Document;
+
+public class VendingMain extends JFrame implements ActionListener {
+	JTextField idinput, win, cin, coin, oin, cashinput, mymoney;
+	JDialog window, sellinfo, stockinfo, cashinfo;
+	JTextArea sellprint, onepartprint, changeprint, tongprint;
+	JPasswordField pwinput;
+	JMenuItem mo, ms, mm, mc;
+	JMenuBar mb2, mb3;
+	JButton waterbutton, coffeebutton, cokebutton, orangebutton, manager,
+			guest, ok, cashinsert, orderfinish, selllist, stocklist, cashlist,
+			addbutton, changeinsert, modybutton, mybutton;
+	DefaultTableModel selltable, stocktable, cashtable;
+	JScrollPane st2, mt2, ct2, sellscroll;
+	JPanel st, main, login, check, sell;
+	CardLayout card;
+	Border eborder;
+	JRadioButton jbin, jbsell, jbwith, jbmody;
+	int orderwater, ordercoffee, ordercoke, orderorange, ordermoney,
+			waterbottle, cokebottle, coffeebottle, orangebottle, total,
+			outmoney, jango = 0;
+
+	ArrayList<VendingCustomer> vc = new ArrayList<VendingCustomer>();
+	ArrayList<VendingManager> vm = new ArrayList<VendingManager>();
+	ArrayList<VendingCashManager> vcm = new ArrayList<VendingCashManager>();
+
+	VendingMain() {
+
+		setTitle("방's 자판기");
+		main = new JPanel();
+		login = new JPanel();
+		check = new JPanel();
+		sell = new JPanel();
+
+		manager = new JButton("관리자");
+		manager.addActionListener(this);
+		guest = new JButton("손님");
+		guest.addActionListener(this);
+		
+		// /////////////////////////////////////////////////////main시작
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+		main.setLayout(new BorderLayout());
+
+		JPanel north1 = new JPanel(); // 여기서부터
+		north1.setPreferredSize(new Dimension(getWidth(), 160));
+		north1.setBackground(Color.white);
+		main.add("North", north1);
+
+		JPanel west1 = new JPanel();
+		west1.setPreferredSize(new Dimension(150, 400));
+		west1.setBackground(Color.white);
+		main.add("West", west1);
+
+		JPanel east1 = new JPanel();
+		east1.setPreferredSize(new Dimension(150, 400));
+		east1.setBackground(Color.white);
+		main.add("East", east1);
+
+		JPanel south1 = new JPanel(); // 여기까지 main 빈칸 채우기
+		south1.setPreferredSize(new Dimension(getWidth(), 200));
+		south1.setBackground(Color.white);
+		main.add("South", south1);
+
+		JPanel center1 = new JPanel();
+		center1.setBackground(Color.white);
+		main.add("Center", center1);
+		center1.setLayout(new GridLayout(1, 2, 10, 0));
+		manager = new JButton("관리자");
+		manager.setBackground(Color.LIGHT_GRAY);
+		manager.addActionListener(this);
+
+		guest = new JButton("손님");
+		guest.setBackground(Color.lightGray);
+		guest.addActionListener(this);
+
+		center1.add(manager);
+		center1.add(guest);
+
+		center1.setBorder(new TitledBorder(new LineBorder(Color.blue, 7),
+				"당신은 누구십니까?"));
+
+		////////////////////////////////////////////////////////////main끝
+		
+		////////////////////////////////////////////////////////////메뉴바시작
+
+		mb2 = new JMenuBar();
+		JMenu menu1 = new JMenu("이동");
+		mb2.add(menu1);
+		mo = new JMenuItem("홈으로");
+		mo.addActionListener(this);
+		menu1.add(mo);
+
+		////////////////////////////////////////////////////////////메뉴바끝
+		
+		////////////////////////////////////////////////////////////login시작
+		login.setLayout(new BorderLayout());
+
+		JPanel north2 = new JPanel(); // 여기서부터
+		north2.setPreferredSize(new Dimension(getWidth(), 180));
+		north2.setBackground(Color.white);
+		login.add("North", north2);
+
+		JPanel west2 = new JPanel();
+		west2.setPreferredSize(new Dimension(80, 400));
+		west2.setBackground(Color.white);
+		login.add("West", west2);
+
+		JPanel east2 = new JPanel();
+		east2.setPreferredSize(new Dimension(80, 230));
+		east2.setBackground(Color.white);
+		login.add("East", east2);
+
+		JPanel south2 = new JPanel(); // 여기까지 login 빈칸 채우기
+		south2.setPreferredSize(new Dimension(getWidth(), 150));
+		south2.setBackground(Color.white);
+		login.add("South", south2);
+
+		JPanel loginmain = new JPanel();
+		loginmain.setLayout(new BorderLayout());
+		loginmain.setBackground(Color.white);
+		loginmain.setBorder(new TitledBorder(new LineBorder(Color.BLACK, 3),
+				"LOGIN"));
+
+		JPanel loginwest = new JPanel();
+		loginwest.setLayout(new GridLayout(2, 1, 5, 5));
+		loginmain.add("West", loginwest);
+		loginwest.setBackground(Color.white);
+
+		JPanel loginwest_top = new JPanel();
+		loginwest_top.setLayout(new FlowLayout(FlowLayout.RIGHT));
+		loginwest.add(loginwest_top);
+		loginwest_top.setBackground(Color.white);
+
+		JPanel loginwest_bottom = new JPanel();
+		loginwest_bottom.setLayout(new FlowLayout(FlowLayout.RIGHT));
+		loginwest.add(loginwest_bottom);
+		loginwest_bottom.setBackground(Color.white);
+
+		JLabel id = new JLabel("관리자 ID");
+		idinput = new JTextField(15);
+		idinput.addActionListener(this);
+		loginwest_top.add(id);
+		loginwest_top.add(idinput);
+
+		JLabel pw = new JLabel("PASSWORD");
+		pwinput = new JPasswordField(15);
+		pwinput.addActionListener(this);
+		loginwest_bottom.add(pw);
+		loginwest_bottom.add(pwinput);
+
+		JPanel logineast = new JPanel();
+		logineast.setLayout(new BorderLayout());
+		loginmain.add("East", logineast);
+
+		JButton ok = new JButton("확인");
+		logineast.add("Center", ok);
+		ok.setBackground(Color.magenta);
+		ok.addActionListener(this);
+
+		login.add("Center", loginmain);
+
+		////////////////////////////////////////////////////////////login끝
+		
+		////////////////////////////////////////////////////////////sell시작
+
+		sell.setLayout(new BorderLayout());
+
+		JPanel selltop = new JPanel();
+		sell.add("Center", selltop);
+		selltop.setLayout(new GridLayout(1, 2));
+
+		JPanel selltop_drink = new JPanel(); // sell 1번 판넬
+		selltop_drink.setBorder(new TitledBorder(
+				new LineBorder(Color.BLACK, 2), "Drink"));
+		selltop.add(selltop_drink);
+		selltop_drink.setLayout(new BorderLayout());
+
+		JLabel selltop_drink_label = new JLabel("마실 것", JLabel.CENTER);
+		selltop_drink_label.setPreferredSize(new Dimension(400, 50));
+		selltop_drink.add("North", selltop_drink_label);
+
+		JPanel selltop_drink_main = new JPanel();
+		selltop_drink.add("Center", selltop_drink_main);
+		selltop_drink_main.setLayout(new GridLayout(5, 1, 10, 10));
+
+		waterbutton = new JButton("아이스생수(500원)");
+		selltop_drink_main.add(waterbutton);
+		waterbutton.addActionListener(this);
+		waterbutton.setBackground(Color.blue);
+		coffeebutton = new JButton("아이스커피(1000원)");
+		selltop_drink_main.add(coffeebutton);
+		coffeebutton.addActionListener(this);
+		coffeebutton.setBackground(Color.DARK_GRAY);
+		cokebutton = new JButton("아이스콜라(900원)");
+		selltop_drink_main.add(cokebutton);
+		cokebutton.addActionListener(this);
+		cokebutton.setBackground(Color.RED);
+		orangebutton = new JButton("오렌지쥬스(1200원)");
+		selltop_drink_main.add(orangebutton);
+		orangebutton.addActionListener(this);
+		orangebutton.setBackground(Color.ORANGE);
+		orderfinish = new JButton("주문완료");
+		orderfinish.addActionListener(this);
+		selltop_drink_main.add(orderfinish);
+
+		JPanel west3 = new JPanel();
+		west3.setPreferredSize(new Dimension(40, 400));
+		selltop_drink.add("West", west3);
+
+		JPanel east3 = new JPanel();
+		east3.setPreferredSize(new Dimension(40, 230));
+		selltop_drink.add("East", east3);
+
+		JPanel south3 = new JPanel();
+		south3.setPreferredSize(new Dimension(400, 40));
+		selltop_drink.add("South", south3);
+
+		JPanel status = new JPanel(); // sell 2번판넬
+		status.setBorder(new TitledBorder(new LineBorder(Color.BLACK, 2),
+				"Screen"));
+		status.setLayout(new BorderLayout());
+		selltop.add(status);
+
+		sellprint = new JTextArea();
+		sellscroll = new JScrollPane(sellprint);
+		sellprint.setBorder(new TitledBorder(new LineBorder(Color.BLACK, 5)));
+		sellprint.setEditable(false);
+		status.add("Center", sellscroll);
+
+		JPanel west4 = new JPanel();
+		west4.setPreferredSize(new Dimension(10, 400));
+		status.add("West", west4);
+
+		JPanel east4 = new JPanel();
+		east4.setPreferredSize(new Dimension(10, 230));
+		status.add("East", east4);
+
+		JPanel south4 = new JPanel();
+		south4.setPreferredSize(new Dimension(400, 10));
+		status.add("South", south4);
+
+		JPanel sellbottom = new JPanel();
+		sell.add("South", sellbottom);
+		sellbottom.setLayout(new GridLayout(1, 2, 0, 10));
+
+		JPanel cash = new JPanel(); // sell 3번판넬
+		cash.setBorder(new TitledBorder(new LineBorder(Color.BLACK, 2),
+				"InsertCoin"));
+		sellbottom.add(cash);
+
+		cashinput = new JTextField(10);
+		cashinput.addActionListener(this);
+		cash.add(cashinput);
+
+		cashinsert = new JButton("입금");
+		cashinsert.addActionListener(this);
+		cash.add(cashinsert);
+
+		JPanel change = new JPanel(); // sell 4번판넬
+		change.setBorder(new TitledBorder(new LineBorder(Color.BLACK, 2),
+				"Change"));
+		sellbottom.add(change);
+
+		changeprint = new JTextArea(1, 10);
+		changeprint.setEditable(false);
+		change.add(changeprint);
+
+		changeinsert = new JButton("반환");
+		changeinsert.addActionListener(this);
+		change.add(changeinsert);
+
+		////////////////////////////////////////////////////////////sell끝
+		
+		////////////////////////////////////////////////////////////check시작
+		check.setLayout(new BorderLayout());
+
+		JPanel checktop = new JPanel(); // top
+		checktop.setLayout(new GridLayout(1, 2));
+		check.add("Center", checktop);
+
+		JPanel onepart = new JPanel(); // 1번판넬
+		onepart.setLayout(new BorderLayout());
+		checktop.add(onepart);
+
+		JPanel toponepart = new JPanel();
+		onepart.add("Center", toponepart);
+		toponepart.setLayout(new BorderLayout());
+		toponepart.setBorder(new TitledBorder(new LineBorder(Color.BLACK, 2),
+				"ShowList"));
+
+		JLabel sll = new JLabel("내역보기", JLabel.CENTER);
+		toponepart.add("North", sll);
+
+		JPanel west10 = new JPanel();
+		west10.setPreferredSize(new Dimension(50, 400));
+		toponepart.add("West", west10);
+
+		JPanel east10 = new JPanel();
+		east10.setPreferredSize(new Dimension(50, 400));
+		toponepart.add("East", east10);
+
+		JPanel south10 = new JPanel();
+		south10.setPreferredSize(new Dimension(400, 20));
+		toponepart.add("South", south10);
+
+		JPanel buttongroup = new JPanel();
+		toponepart.add("Center", buttongroup);
+		buttongroup.setLayout(new GridLayout(3, 1, 0, 20));
+
+		selllist = new JButton("판매");
+		selllist.setBackground(Color.GREEN);
+		buttongroup.add(selllist);
+		selllist.addActionListener(this);
+		stocklist = new JButton("재고");
+		stocklist.setBackground(Color.GREEN);
+		buttongroup.add(stocklist);
+		stocklist.addActionListener(this);
+		cashlist = new JButton("입출금현황");
+		cashlist.setBackground(Color.GREEN);
+		buttongroup.add(cashlist);
+		cashlist.addActionListener(this);
+
+		//
+		JPanel bottomonepart = new JPanel();
+		onepart.add("South", bottomonepart);
+		bottomonepart.setLayout(new BorderLayout());
+		bottomonepart.setBorder(new TitledBorder(
+				new LineBorder(Color.BLACK, 2), "Search"));
+
+		JLabel bol = new JLabel("검색", JLabel.CENTER);
+		bottomonepart.add("North", bol);
+
+		JPanel jrb = new JPanel();
+		bottomonepart.add("South", jrb);
+
+		ButtonGroup bg = new ButtonGroup();
+
+		jbsell = new JRadioButton("판매");
+		jbsell.addActionListener(this);
+		jbin = new JRadioButton("충전");
+		jbin.addActionListener(this);
+		jbmody = new JRadioButton("수정");
+		jbmody.addActionListener(this);
+		jbwith = new JRadioButton("출금");
+		jbwith.addActionListener(this);
+		bg.add(jbsell);
+		bg.add(jbin);
+		bg.add(jbmody);
+		bg.add(jbwith);
+		jrb.add(jbsell);
+		jrb.add(jbin);
+		jrb.add(jbmody);
+		jrb.add(jbwith);
+
+		JPanel twopart = new JPanel(); // 2-1번판넬
+		twopart.setBorder(new TitledBorder(new LineBorder(Color.BLACK, 2),
+				"StockManageArea"));
+		twopart.setLayout(new BorderLayout());
+		checktop.add(twopart);
+
+		JLabel twopartlabel = new JLabel("음료재고 추가 및 수정", JLabel.CENTER);
+		twopartlabel.setPreferredSize(new Dimension(400, 50));
+		twopart.add("North", twopartlabel);
+
+		JPanel items = new JPanel();
+		items.setLayout(new BorderLayout());
+		twopart.add("Center", items);
+
+		JPanel itemcoll = new JPanel();
+		itemcoll.setLayout(new GridLayout(4, 2, 10, 10));
+		items.add("Center", itemcoll);
+
+		JLabel w = new JLabel("아이스생수");
+		itemcoll.add(w);
+		win = new JTextField(3);
+		itemcoll.add(win);
+		JLabel c = new JLabel("아이스커피");
+		itemcoll.add(c);
+		cin = new JTextField(3);
+		itemcoll.add(cin);
+		JLabel co = new JLabel("아이스콜라");
+		itemcoll.add(co);
+		coin = new JTextField(3);
+		itemcoll.add(coin);
+		JLabel o = new JLabel("오렌지쥬스");
+		itemcoll.add(o);
+		oin = new JTextField(3);
+		itemcoll.add(oin);
+
+		JPanel north6 = new JPanel();
+		north6.setPreferredSize(new Dimension(400, 50));
+		items.add("North", north6);
+
+		JPanel west6 = new JPanel();
+		west6.setPreferredSize(new Dimension(10, 400));
+		items.add("West", west6);
+
+		JPanel east6 = new JPanel();
+		east6.setPreferredSize(new Dimension(10, 20));
+		items.add("East", east6);
+
+		JPanel south6 = new JPanel();
+		south6.setPreferredSize(new Dimension(400, 80));
+		items.add("South", south6);
+
+		// //////////////////////////////////// 2-2번 판넬
+		JPanel addmodycoll = new JPanel();
+		addmodycoll.setLayout(new BorderLayout());
+		twopart.add("East", addmodycoll);
+
+		JPanel addmody = new JPanel();
+		addmody.setLayout(new GridLayout(2, 1, 5, 5));
+		addmodycoll.add("Center", addmody);
+
+		addbutton = new JButton("추가");
+		addbutton.setBackground(Color.YELLOW);
+		addbutton.addActionListener(this);
+		addmody.add(addbutton);
+
+		modybutton = new JButton("수정");
+		modybutton.setBackground(Color.YELLOW);
+		modybutton.addActionListener(this);
+		addmody.add(modybutton);
+
+		JPanel north7 = new JPanel();
+		north7.setPreferredSize(new Dimension(40, 100));
+		addmodycoll.add("North", north7);
+
+		JPanel east7 = new JPanel();
+		east7.setPreferredSize(new Dimension(10, 230));
+		addmodycoll.add("East", east7);
+
+		JPanel south7 = new JPanel();
+		south7.setPreferredSize(new Dimension(40, 130));
+		addmodycoll.add("South", south7);
+
+		JPanel checkbottom = new JPanel(); ////////////bottom
+		checkbottom.setLayout(new GridLayout(1, 2, 0, 10));
+		check.add("South", checkbottom);
+
+		JPanel tong = new JPanel(); // 3번판넬
+		tong.setBorder(new TitledBorder(new LineBorder(Color.BLACK, 2),
+				"MoneyReport"));
+		checkbottom.add(tong);
+
+		JLabel tonglabel = new JLabel("잔고");
+		tong.add(tonglabel);
+
+		tongprint = new JTextArea(1, 10);
+		tongprint.setEditable(false);
+		tong.add(tongprint);
+
+		JPanel my = new JPanel(); // sell 4번판넬
+		my.setBorder(new TitledBorder(new LineBorder(Color.BLACK, 2),
+				"WithdrawMoney"));
+		checkbottom.add(my);
+
+		mymoney = new JTextField(10);
+		my.add(mymoney);
+
+		mybutton = new JButton("출금");
+		mybutton.setBackground(Color.cyan);
+		mybutton.addActionListener(this);
+		my.add(mybutton);
+
+		// //////////////////////////////////////////////////////////check끝
+
+		window = new JDialog();
+		window.setSize(200, 200);
+
+		sellinfo = new JDialog();
+		sellinfo.setSize(1000, 400);
+
+		cashinfo = new JDialog();
+		cashinfo.setSize(450, 400);
+
+		card = new CardLayout(0, 0);
+		setLayout(card);
+
+		add("a1", main);
+		add("a2", login);
+		add("a3", sell);
+		add("a4", check);
+
+		setJMenuBar(mb2);
+
+		setVisible(true);
+		setSize(540, 500);
+	}
+
+	public static void main(String[] args) {
+		VendingMain vmain = new VendingMain();
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) { //16번 메소드
+		String str = e.getActionCommand();
+		if (e.getSource() == manager) { // 관리자
+			totalload();
+			tongprint.setText(stringchange(vcm.get(vcm.size() - 1)
+					.getLastcash()));
+			card.show(getContentPane(), "a2");
+		}
+
+		else if (e.getSource() == guest) { // 손님
+			showmessage("환영합니다. 손님.", "무인 자판기");
+			totalload();
+			card.show(getContentPane(), "a3");
+		}
+
+		else if (str.equals("확인") || e.getSource() == idinput
+				|| e.getSource() == pwinput) {
+			String mid = idinput.getText();
+			String mpw = pwinput.getText();
+			String[] managerid = { "방현준" };
+			String[] managerpw = { "1234" };
+			if (mid.equals(managerid[0]) && mpw.equals(managerpw[0])) {
+				showmessage("환영합니다. 관리자님.", "로그인 성공");
+				idinput.setText("");
+				pwinput.setText("");
+				card.show(getContentPane(), "a4");
+			} else {
+				showmessage("아이디와 비밀번호를 확인해주세요.", "로그인 실패");
+			}
+		}
+
+		else if (e.getSource() == cashinput) {
+			try {
+				int inordermoney = intchange(cashinput.getText());
+				if(inordermoney>0){
+					orderfinish.setEnabled(true);
+					ordermoney = sumloop(ordermoney, inordermoney);
+					sellprint.append("[입금확인] " + inordermoney + "원이 입금되었습니다."
+							+ "\n");
+					cashinput.setText("");
+					changeprint.setText("");
+					changeprint.append(stringchange(ordermoney));
+				}
+				else{
+					showmessage("금액을 확인해주세요.", "입금실패");
+				}
+				
+			} catch (NumberFormatException e2) {
+				showmessage("금액을 확인해주세요.", "입금실패");
+			}
+
+		}
+
+		else if (e.getSource() == cashinsert) {
+			try {
+				int inordermoney = intchange(cashinput.getText());
+				if(inordermoney>0){
+					orderfinish.setEnabled(true);
+					ordermoney = sumloop(ordermoney, inordermoney);
+					sellprint.append("[입금확인] " + inordermoney + "원이 입금되었습니다."
+							+ "\n");
+					cashinput.setText("");
+					changeprint.setText("");
+					changeprint.append(stringchange(ordermoney));
+				}
+				else{
+					showmessage("금액을 확인해주세요.", "입금실패");
+				}
+				
+				
+			} catch (NumberFormatException e2) {
+				showmessage("금액을 확인해주세요.", "입금실패");
+			}
+		}
+
+		else if (e.getSource() == waterbutton) {
+			if (ordermoney >= 500) {
+				if (vm.size() != 0 && vm.get(vm.size() - 1).getSwater() > 0) {
+					orderfinish.setEnabled(true);
+					orderwater++;
+					ordermoney = minusloop(ordermoney, 500);
+					total = sumloop(total, 500);
+					sellprint.append("시원한 생수 총 " + orderwater + "병이 주문되었습니다."
+							+ "\n");
+					changeprint.setText("");
+					changeprint.append(stringchange(ordermoney));
+				} else {
+					showmessage("죄송합니다. 해당 음료가 부족합니다.", "재고 부족");
+				}
+			} else {
+				showmessage("잔액이 부족합니다.", "잔액 부족");
+			}
+		}
+
+		else if (e.getSource() == coffeebutton) {
+			if (ordermoney >= 1000) {
+				if (vm.size() != 0 && vm.get(vm.size() - 1).getScoffee() > 0) {
+					orderfinish.setEnabled(true);
+					ordercoffee++;
+					ordermoney = minusloop(ordermoney, 1000);
+					total = sumloop(total, 1000);
+					sellprint.append("시원한 커피 총 " + ordercoffee + "병이 주문되었습니다."
+							+ "\n");
+					changeprint.setText("");
+					changeprint.append(stringchange(ordermoney));
+				} else {
+					showmessage("죄송합니다. 해당 음료가 부족합니다.", "재고 부족");
+				}
+			} else {
+				showmessage("잔액이 부족합니다.", "잔액 부족");
+			}
+
+		} else if (e.getSource() == cokebutton) {
+			if (ordermoney >= 900) {
+				if (vm.size() != 0 && vm.get(vm.size() - 1).getScoke() > 0) {
+					orderfinish.setEnabled(true);
+					ordercoke++;
+					ordermoney = minusloop(ordermoney, 900);
+					total = sumloop(total, 900);
+					sellprint.append("시원한 콜라 총 " + ordercoke + "병이 주문되었습니다."
+							+ "\n");
+					changeprint.setText("");
+					changeprint.append(stringchange(ordermoney));
+				} else {
+					showmessage("죄송합니다. 해당 음료가 부족합니다.", "재고 부족");
+				}
+			} else {
+				showmessage("잔액이 부족합니다.", "잔액 부족");
+			}
+		} else if (e.getSource() == orangebutton) {
+			if (ordermoney >= 1200) {
+				if (vm.size() != 0 && vm.get(vm.size() - 1).getSorange() > 0) {
+					orderfinish.setEnabled(true);
+					orderorange++;
+					ordermoney = minusloop(ordermoney, 1200);
+					total = sumloop(total, 1200);
+					sellprint.append("오렌지쥬스 총 " + orderorange + "병이 주문되었습니다."
+							+ "\n");
+					changeprint.setText("");
+					changeprint.append(stringchange(ordermoney));
+				} else {
+					showmessage("죄송합니다. 해당 음료가 부족합니다.", "재고 부족");
+				}
+			} else {
+				showmessage("잔액이 부족합니다.", "잔액 부족");
+			}
+		}
+
+		else if (e.getSource() == changeinsert) {
+			if (ordermoney < 1) {
+				showmessage("남은 잔돈이 없습니다.", "잔액 부족");
+			} else {
+				int result = JOptionPane.showConfirmDialog(window,
+						"주문이 완료되셨습니까?", "잔돈 반환", JOptionPane.OK_CANCEL_OPTION,
+						JOptionPane.WARNING_MESSAGE, null);
+
+				if (result == 0) {// 확인
+					if (vc.size() < 1 && vm.size() < 1) {
+						sellprint.append("[완료] " + ordermoney + "원이 반환되었습니다."
+								+ "\n");
+						ordermoney = 0;
+						changeprint.setText("");
+					} else {
+						vc.add(new VendingCustomer(time(), orderwater,
+								ordercoffee, ordercoke, orderorange, total));
+						vm.add(new VendingManager("판매", time(), vm.get(
+								vm.size() - 1).getSwater()
+								- orderwater, vm.get(vm.size() - 1)
+								.getScoffee() - ordercoffee, vm.get(
+								vm.size() - 1).getScoke()
+								- ordercoke, vm.get(vm.size() - 1).getSorange()
+								- orderorange));
+						for (int i = 0; i < vc.size(); i++) { // 자판기 총 잔고 계산
+							jango = sumloop(jango, vc.get(i).getCash());
+						}
+						vcm.add(new VendingCashManager("입금", time(), total,
+								jango));
+						totalsave();
+						tongprint.setText("");
+						tongprint.setText(stringchange(jango)); // 관리자 잔고 칸에 잔액
+																// 출력
+						showmessage("거스름돈이 반환되었습니다.", "거스름돈 반환");
+						sellprint.append("[반환완료] " + ordermoney + "원이 반환되었습니다."
+								+ "\n");
+						ordermoney = makezero(ordermoney);
+						orderwater = makezero(orderwater);
+						ordercoffee = makezero(ordercoffee);
+						ordercoke = makezero(ordercoke);
+						orderorange = makezero(orderorange);
+						total = makezero(total);
+						changeprint.setText("");
+						orderfinish.setEnabled(false);
+						sellprint.setText("");// /
+					}
+				} else {/* 취소,x */
+				}
+			}
+		}
+
+		else if (e.getSource() == orderfinish) {
+			if (orderwater == 0 && ordercoffee == 0 && ordercoke == 0
+					&& orderorange == 0) {
+				showmessage("주문 내역이 없습니다.", "주문 실패");
+			} else {
+				vc.add(new VendingCustomer(time(), orderwater, ordercoffee,
+						ordercoke, orderorange, total));
+				vm.add(new VendingManager("판매", time(), vm.get(vm.size() - 1)
+						.getSwater() - orderwater, vm.get(vm.size() - 1)
+						.getScoffee() - ordercoffee, vm.get(vm.size() - 1)
+						.getScoke() - ordercoke, vm.get(vm.size() - 1)
+						.getSorange() - orderorange));
+				for (int i = 0; i < vc.size(); i++) { // 자판기 총 잔고 계산
+					jango = sumloop(jango, vc.get(i).getCash());
+				}
+				vcm.add(new VendingCashManager("입금", time(), total, jango));
+				totalsave();
+				tongprint.setText("");
+				tongprint.setText(stringchange(jango)); // 관리자 잔고 칸에 잔액 출력
+				showmessage("거스름돈이 반환되었습니다.", "거스름돈 반환");
+				sellprint.append("[반환완료] " + ordermoney + "원이 반환되었습니다." + "\n");
+				ordermoney = makezero(ordermoney);
+				orderwater = makezero(orderwater);
+				ordercoffee = makezero(ordercoffee);
+				ordercoke = makezero(ordercoke);
+				orderorange = makezero(orderorange);
+				total = makezero(total);
+				changeprint.setText("");
+				orderfinish.setEnabled(false);
+				sellprint.setText("");
+			}
+
+		}
+		
+		else if (e.getSource() == addbutton) {
+			String w_drink = win.getText();
+			String c_drink = cin.getText();
+			String co_drink = coin.getText();
+			String o_drink = oin.getText();
+			try {
+				waterbottle = intchange(w_drink);
+				coffeebottle = intchange(c_drink);
+				cokebottle = intchange(co_drink);
+				orangebottle = intchange(o_drink);
+				if(waterbottle >0 && coffeebottle >0 && cokebottle >0 && orangebottle >0){
+					win.setText("");
+					cin.setText("");
+					coin.setText("");
+					oin.setText(""); // 기존 재고량에 새로 입력된 물품들을 추가
+					vm.add(new VendingManager("추가", time(), waterbottle
+							+ vm.get(vm.size() - 1).getSwater(), coffeebottle
+							+ vm.get(vm.size() - 1).getScoffee(), cokebottle
+							+ vm.get(vm.size() - 1).getScoke(), orangebottle
+							+ vm.get(vm.size() - 1).getSorange()));
+					showmessage("음료 추가가 완료되었습니다.", "충전 완료");
+					managersave();
+				}
+				else {
+					showmessage("수량을 확인해주세요.", "상품 추가 실패");	
+				}
+
+			} catch (NumberFormatException e3) {
+				showmessage("수량을 확인해주세요.", "상품 추가 실패");
+			}
+		} else if (e.getSource() == modybutton) {
+			String w_drink = win.getText();
+			String c_drink = cin.getText();
+			String co_drink = coin.getText();
+			String o_drink = oin.getText();
+			try {
+				waterbottle = intchange(w_drink);
+				coffeebottle = intchange(co_drink);
+				cokebottle = intchange(c_drink);
+				orangebottle = intchange(o_drink);
+				if(waterbottle >0 && coffeebottle >0 && cokebottle >0 && orangebottle >0){
+					win.setText("");
+					cin.setText("");
+					coin.setText("");
+					oin.setText("");
+					vm.add(new VendingManager("수정", time(), waterbottle,
+							coffeebottle, cokebottle, orangebottle));
+					showmessage("음료 재고 수정이 완료되었습니다.", "수정 완료");
+					managersave();
+				}
+				else{
+					showmessage("음료 재고 수정 수치를 확인해주세요.", "수정 실패");
+				}
+				
+			} catch (NumberFormatException e4) {
+				showmessage("음료 재고 수정 수치를 확인해주세요.", "수정 실패");
+			}
+		}
+
+		else if (e.getSource() == mybutton) {
+			try {
+				String mymoney1 = mymoney.getText();
+				outmoney = intchange(mymoney1);
+				if (vcm.get(vcm.size() - 1).getLastcash() >= outmoney) {
+					jango = vcm.get(vcm.size() - 1).getLastcash() - outmoney;
+					vcm.add(new VendingCashManager("출금", time(), outmoney,
+							jango));
+					cashsave();
+					mymoney.setText("");
+					tongprint.setText(stringchange(jango));
+					showmessage("출금이 완료되었습니다", "출금 완료");
+				} else {
+					showmessage("출금 금액이 초과되었습니다.", "잔고 부족");
+				}
+			} catch (NumberFormatException e5) {
+				showmessage("정확한 금액을 입력해주세요.", "입력 오류");
+			}
+
+		} else if (e.getSource() == mo) {
+			card.show(getContentPane(), "a1");
+
+		} else if (e.getSource() == selllist) {
+			if (vc.size() == 0) {
+				showmessage("판매 내역이 없습니다.", "판매 현황 조회 실패");
+			} else {
+				customerload();
+				JTable st = null;
+				sellinfo = new JDialog();
+				sellinfo.setSize(800, 400);
+				String sellhead[] = { "순번", "날짜", "물", "커피", "콜라", "오렌지쥬스",
+						"총 구매액" };
+				String sellrow[][] = new String[vc.size()][7];
+				selltable = new DefaultTableModel(sellhead, 0);
+				st = new JTable(selltable);
+				st2 = new JScrollPane(st);
+				DefaultTableCellRenderer dcenter = new DefaultTableCellRenderer();
+				DefaultTableCellRenderer dright = new DefaultTableCellRenderer();
+				dcenter.setHorizontalAlignment(SwingConstants.CENTER);
+				dright.setHorizontalAlignment(SwingConstants.RIGHT);
+				TableColumnModel tcmSchedule = st.getColumnModel();
+				TableColumnModel tcmSchedule2 = st.getColumnModel();
+				for (int i = 0; i < 2; i++)
+					tcmSchedule.getColumn(i).setCellRenderer(dcenter);
+				for (int i = 2; i < 7; i++) {
+					tcmSchedule2.getColumn(i).setCellRenderer(dright);
+					tcmSchedule2.getColumn(i).setPreferredWidth(20);
+				}
+				sellinfo.add(st2);
+				selltable.setNumRows(0);
+				for (int i = 0; i < vc.size(); i++) {
+					sellrow[i][0] = stringchange(i + 1);
+					sellrow[i][1] = vc.get(i).getWhen();
+					sellrow[i][2] = stringchange(vc.get(i).getWater());
+					sellrow[i][3] = stringchange(vc.get(i).getCoffee());
+					sellrow[i][4] = stringchange(vc.get(i).getCoke());
+					sellrow[i][5] = stringchange(vc.get(i).getOrange());
+					sellrow[i][6] = stringchange(vc.get(i).getCash());
+					selltable.addRow(sellrow[i]);
+				}
+				st.setEnabled(false);
+				sellinfo.setVisible(true);
+			}
+		}
+
+		else if (e.getSource() == stocklist) {
+			managerload();
+			JTable mt = null;
+			stockinfo = new JDialog();
+			stockinfo.setSize(800, 400);
+			String stockhead[] = { "번호", "작업", "날짜", "총 물병", "총 커피병", "총 콜라병",
+					"총 오렌지쥬스병" };
+			String stockrow[][] = new String[vm.size()][7];
+			stocktable = new DefaultTableModel(stockhead, 0);
+			mt = new JTable(stocktable);
+			mt2 = new JScrollPane(mt);
+
+			DefaultTableCellRenderer dcenter = new DefaultTableCellRenderer();
+			DefaultTableCellRenderer dright = new DefaultTableCellRenderer();
+			dcenter.setHorizontalAlignment(SwingConstants.CENTER);
+			dright.setHorizontalAlignment(SwingConstants.RIGHT);
+			TableColumnModel tcmSchedule = mt.getColumnModel();
+			TableColumnModel tcmSchedule2 = mt.getColumnModel();
+			for (int i = 0; i < 3; i++)
+				tcmSchedule.getColumn(i).setCellRenderer(dcenter);
+			for (int i = 3; i < 7; i++) {
+				tcmSchedule2.getColumn(i).setCellRenderer(dright);
+				tcmSchedule2.getColumn(i).setPreferredWidth(30);
+			}
+
+			stockinfo.add(mt2);
+			stocktable.setNumRows(0);
+			for (int i = 0; i < vm.size(); i++) {
+				stockrow[i][0] = stringchange(i + 1);
+				stockrow[i][1] = vm.get(i).getType();
+				stockrow[i][2] = vm.get(i).getInwhen();
+				stockrow[i][3] = stringchange(vm.get(i).getSwater());
+				stockrow[i][4] = stringchange(vm.get(i).getScoffee());
+				stockrow[i][5] = stringchange(vm.get(i).getScoke());
+				stockrow[i][6] = stringchange(vm.get(i).getSorange());
+				stocktable.addRow(stockrow[i]);
+			}
+			mt.setEnabled(false);
+			stockinfo.setVisible(true);
+		}
+
+		else if (e.getSource() == cashlist) {
+			cashload();
+			JTable ct = null;
+			cashinfo = new JDialog();
+			cashinfo.setSize(500, 300);
+			String cashhead[] = { "번호", "날짜", "작업", "잔액", "입출액" };
+			String cashrow[][] = new String[vcm.size()][5];
+			cashtable = new DefaultTableModel(cashhead, 0);
+			ct = new JTable(cashtable);
+			ct2 = new JScrollPane(ct);
+
+			DefaultTableCellRenderer dcenter = new DefaultTableCellRenderer();
+			DefaultTableCellRenderer dright = new DefaultTableCellRenderer();
+			dcenter.setHorizontalAlignment(SwingConstants.CENTER);
+			dright.setHorizontalAlignment(SwingConstants.RIGHT);
+			TableColumnModel tcmSchedule = ct.getColumnModel();
+			TableColumnModel tcmSchedule2 = ct.getColumnModel();
+			for (int i = 0; i < 3; i++)
+				tcmSchedule.getColumn(i).setCellRenderer(dcenter);
+
+			for (int i = 3; i < 5; i++) {
+				tcmSchedule2.getColumn(i).setCellRenderer(dright);
+				tcmSchedule2.getColumn(i).setPreferredWidth(30);
+			}
+
+			cashinfo.add(ct2);
+			cashtable.setNumRows(0);
+			for (int i = 0; i < vcm.size(); i++) {
+				cashrow[i][0] = stringchange(i + 1);
+				cashrow[i][1] = vcm.get(i).getCashtype();
+				cashrow[i][2] = vcm.get(i).getWhencash();
+				cashrow[i][3] = stringchange(vcm.get(i).getWithdrawcash());
+				cashrow[i][4] = stringchange(vcm.get(i).getLastcash());
+				cashtable.addRow(cashrow[i]);
+			}
+			ct.setEnabled(false);
+			cashinfo.setVisible(true);
+		}
+
+		else if (e.getSource() == jbsell) {
+			managerload();
+			JTable mt = null;
+			stockinfo = new JDialog();
+			stockinfo.setSize(800, 400);
+			String stockhead[] = { "번호", "작업", "날짜", "총 물병", "총 커피병", "총 콜라병",
+					"총 오렌지쥬스병" };
+			String stockrow[][] = new String[vm.size()][7];
+			stocktable = new DefaultTableModel(stockhead, 0);
+			mt = new JTable(stocktable);
+			mt2 = new JScrollPane(mt);
+
+			DefaultTableCellRenderer dcenter = new DefaultTableCellRenderer();
+			DefaultTableCellRenderer dright = new DefaultTableCellRenderer();
+			dcenter.setHorizontalAlignment(SwingConstants.CENTER);
+			dright.setHorizontalAlignment(SwingConstants.RIGHT);
+			TableColumnModel tcmSchedule = mt.getColumnModel();
+			TableColumnModel tcmSchedule2 = mt.getColumnModel();
+			for (int i = 0; i < 3; i++)
+				tcmSchedule.getColumn(i).setCellRenderer(dcenter);
+			for (int i = 3; i < 7; i++) {
+				tcmSchedule2.getColumn(i).setCellRenderer(dright);
+				tcmSchedule2.getColumn(i).setPreferredWidth(30);
+			}
+
+			stockinfo.add(mt2);
+			stocktable.setNumRows(0);
+			for (int i = 0; i < vm.size(); i++) {
+				if (vm.get(i).getType().equals("판매")) {
+					stockrow[i][0] = stringchange(i + 1);
+					stockrow[i][1] = vm.get(i).getType();
+					stockrow[i][2] = vm.get(i).getInwhen();
+					stockrow[i][3] = stringchange(vm.get(i).getSwater());
+					stockrow[i][4] = stringchange(vm.get(i).getScoffee());
+					stockrow[i][5] = stringchange(vm.get(i).getScoke());
+					stockrow[i][6] = stringchange(vm.get(i).getSorange());
+					stocktable.addRow(stockrow[i]);
+				}
+			}
+			mt.setEnabled(false);
+			stockinfo.setVisible(true);
+		} else if (e.getSource() == jbin) {
+			managerload();
+			JTable mt = null;
+			stockinfo = new JDialog();
+			stockinfo.setSize(800, 400);
+			String stockhead[] = { "번호", "작업", "날짜", "총 물병", "총 커피병", "총 콜라병",
+					"총 오렌지쥬스병" };
+			String stockrow[][] = new String[vm.size()][7];
+			stocktable = new DefaultTableModel(stockhead, 0);
+			mt = new JTable(stocktable);
+			mt2 = new JScrollPane(mt);
+
+			DefaultTableCellRenderer dcenter = new DefaultTableCellRenderer();
+			DefaultTableCellRenderer dright = new DefaultTableCellRenderer();
+			dcenter.setHorizontalAlignment(SwingConstants.CENTER);
+			dright.setHorizontalAlignment(SwingConstants.RIGHT);
+			TableColumnModel tcmSchedule = mt.getColumnModel();
+			TableColumnModel tcmSchedule2 = mt.getColumnModel();
+			for (int i = 0; i < 3; i++)
+				tcmSchedule.getColumn(i).setCellRenderer(dcenter);
+			for (int i = 3; i < 7; i++) {
+				tcmSchedule2.getColumn(i).setCellRenderer(dright);
+				tcmSchedule2.getColumn(i).setPreferredWidth(30);
+			}
+
+			stockinfo.add(mt2);
+			stocktable.setNumRows(0);
+			for (int i = 0; i < vm.size(); i++) {
+				if (vm.get(i).getType().equals("추가")) {
+					stockrow[i][0] = stringchange(i + 1);
+					stockrow[i][1] = vm.get(i).getType();
+					stockrow[i][2] = vm.get(i).getInwhen();
+					stockrow[i][3] = stringchange(vm.get(i).getSwater());
+					stockrow[i][4] = stringchange(vm.get(i).getScoffee());
+					stockrow[i][5] = stringchange(vm.get(i).getScoke());
+					stockrow[i][6] = stringchange(vm.get(i).getSorange());
+					stocktable.addRow(stockrow[i]);
+				}
+			}
+			mt.setEnabled(false);
+			stockinfo.setVisible(true);
+		} else if (e.getSource() == jbmody) {
+			managerload();
+			JTable mt = null;
+			stockinfo = new JDialog();
+			stockinfo.setSize(800, 400);
+			String stockhead[] = { "번호", "작업", "날짜", "총 물병", "총 커피병", "총 콜라병",
+					"총 오렌지쥬스병" };
+			String stockrow[][] = new String[vm.size()][7];
+			stocktable = new DefaultTableModel(stockhead, 0);
+			mt = new JTable(stocktable);
+			mt2 = new JScrollPane(mt);
+
+			DefaultTableCellRenderer dcenter = new DefaultTableCellRenderer();
+			DefaultTableCellRenderer dright = new DefaultTableCellRenderer();
+			dcenter.setHorizontalAlignment(SwingConstants.CENTER);
+			dright.setHorizontalAlignment(SwingConstants.RIGHT);
+			TableColumnModel tcmSchedule = mt.getColumnModel();
+			TableColumnModel tcmSchedule2 = mt.getColumnModel();
+			for (int i = 0; i < 3; i++)
+				tcmSchedule.getColumn(i).setCellRenderer(dcenter);
+			for (int i = 3; i < 7; i++) {
+				tcmSchedule2.getColumn(i).setCellRenderer(dright);
+				tcmSchedule2.getColumn(i).setPreferredWidth(30);
+			}
+			stockinfo.add(mt2);
+			stocktable.setNumRows(0);
+			for (int i = 0; i < vm.size(); i++) {
+				if (vm.get(i).getType().equals("수정")) {
+					stockrow[i][0] = stringchange(i + 1);
+					stockrow[i][1] = vm.get(i).getType();
+					stockrow[i][2] = vm.get(i).getInwhen();
+					stockrow[i][3] = stringchange(vm.get(i).getSwater());
+					stockrow[i][4] = stringchange(vm.get(i).getScoffee());
+					stockrow[i][5] = stringchange(vm.get(i).getScoke());
+					stockrow[i][6] = stringchange(vm.get(i).getSorange());
+					stocktable.addRow(stockrow[i]);
+				}
+			}
+			mt.setEnabled(false);
+			stockinfo.setVisible(true);
+		} else if (e.getSource() == jbwith) {
+			cashload();
+			JTable ct = null;
+			cashinfo = new JDialog();
+			cashinfo.setSize(500, 300);
+			String cashhead[] = { "번호", "작업", "날짜", "잔액", "입출액" };
+			String cashrow[][] = new String[vcm.size()][5];
+			cashtable = new DefaultTableModel(cashhead, 0);
+			ct = new JTable(cashtable);
+			ct2 = new JScrollPane(ct);
+
+			DefaultTableCellRenderer dcenter = new DefaultTableCellRenderer();
+			DefaultTableCellRenderer dright = new DefaultTableCellRenderer();
+			dcenter.setHorizontalAlignment(SwingConstants.CENTER);
+			dright.setHorizontalAlignment(SwingConstants.RIGHT);
+			TableColumnModel tcmSchedule = ct.getColumnModel();
+			TableColumnModel tcmSchedule2 = ct.getColumnModel();
+			for (int i = 0; i < 3; i++)
+				tcmSchedule.getColumn(i).setCellRenderer(dcenter);
+
+			for (int i = 3; i < 5; i++) {
+				tcmSchedule2.getColumn(i).setCellRenderer(dright);
+				tcmSchedule2.getColumn(i).setPreferredWidth(30);
+			}
+
+			cashinfo.add(ct2);
+			cashtable.setNumRows(0);
+			for (int i = 0; i < vcm.size(); i++) {
+				if (vcm.get(i).getCashtype().equals("출금")) {
+					cashrow[i][0] = stringchange(i + 1);
+					cashrow[i][1] = vcm.get(i).getCashtype();
+					cashrow[i][2] = vcm.get(i).getWhencash();
+					cashrow[i][3] = stringchange(vcm.get(i).getWithdrawcash());
+					cashrow[i][4] = stringchange(vcm.get(i).getLastcash());
+					cashtable.addRow(cashrow[i]);
+				}
+			}
+			ct.setEnabled(false);
+			cashinfo.setVisible(true);
+		}
+	}
+
+	int sumloop(int a, int b) { //1번 메소드
+		a = a + b;
+		return a;
+	}
+
+	int minusloop(int a, int b) { //2번 메소드
+		a = a - b;
+		return a;
+	}
+
+	int intchange(String a) { //3번 메소드
+		int b = Integer.parseInt(a);
+		return b;
+	}
+
+	String stringchange(int a) { //4번 메소드
+		String b = String.valueOf(a);
+		return b;
+	}
+
+	void showmessage(String m, String t) { //5번 메소드
+		JOptionPane.showMessageDialog(window, m, t,
+				JOptionPane.INFORMATION_MESSAGE);
+	}
+
+	String time() { //6번 메소드
+		Date time = new Date();
+		SimpleDateFormat h = new SimpleDateFormat("yy/MM/dd HH:mm:ss");
+		return h.format(time);
+	}
+
+	int makezero(int a) { //7번 메소드
+		a = 0;
+		return a;
+	}
+
+	void customerload() { //8번 메소드
+		FileInputStream fin = null;
+		ObjectInputStream ois = null;
+		try {
+			fin = new FileInputStream("customerlist.dat");
+			ois = new ObjectInputStream(fin);
+			vc = (ArrayList) ois.readObject();
+			System.out.println("vc로드됨");
+		} catch (Exception ex) {
+		} finally {
+			try {
+
+				ois.close();
+				fin.close();
+			} catch (IOException ioe) {
+			}
+		}
+	}
+
+	void managerload() { //9번 메소드
+		FileInputStream fin = null;
+		ObjectInputStream ois = null;
+		try {
+			fin = new FileInputStream("managerlist.dat");
+			ois = new ObjectInputStream(fin);
+			vm = (ArrayList) ois.readObject();
+			System.out.println("vm로드됨");
+		} catch (Exception ex) {
+		} finally {
+			try {
+				ois.close();
+				fin.close();
+			} catch (IOException ioe) {
+			}
+		}
+	}
+
+	void cashload() { //10번 메소드
+		FileInputStream fin = null;
+		ObjectInputStream ois = null;
+		try {
+			fin = new FileInputStream("cashlist.dat");
+			ois = new ObjectInputStream(fin);
+			vcm = (ArrayList) ois.readObject();
+			System.out.println("vcm로드됨");
+		} catch (Exception ex) {
+		} finally {
+			try {
+				ois.close();
+				fin.close();
+			} catch (IOException ioe) {
+			}
+		}
+	}
+
+	void customersave() { //11번 메소드
+		FileOutputStream fout = null;
+		ObjectOutputStream oos = null;
+		try {
+			fout = new FileOutputStream("customerlist.dat");
+			oos = new ObjectOutputStream(fout);
+			oos.writeObject(vc);
+			oos.reset();
+			System.out.println("커스텀저장되었습니다.");
+		} catch (Exception ex) {
+		} finally {
+			try {
+				oos.close();
+				fout.close();
+			} catch (IOException ioe) {
+			}
+		}
+	}
+
+	void managersave() { //12번 메소드
+		FileOutputStream fout = null;
+		ObjectOutputStream oos = null;
+		try {
+			fout = new FileOutputStream("managerlist.dat");
+			oos = new ObjectOutputStream(fout);
+			oos.writeObject(vm);
+			oos.reset();
+			System.out.println("매니저저장되었습니다.");
+		} catch (Exception ex) {
+		} finally {
+			try {
+				oos.close();
+				fout.close();
+			} catch (IOException ioe) {
+			}
+		}
+	}
+
+	void cashsave() { //13번 메소드
+		FileOutputStream fout = null;
+		ObjectOutputStream oos = null;
+		try {
+			fout = new FileOutputStream("cashlist.dat");
+			oos = new ObjectOutputStream(fout);
+			oos.writeObject(vcm);
+			oos.reset();
+			System.out.println("캐시저장되었습니다.");
+		} catch (Exception ex) {
+		} finally {
+			try {
+				oos.close();
+				fout.close();
+			} catch (IOException ioe) {
+			}
+		}
+	}
+
+	void totalload() { //14번 메소드
+		customerload();
+		managerload();
+		cashload();
+	}
+
+	void totalsave() { //15번 메소드
+		customersave();
+		managersave();
+		cashsave();
+	}
+}
