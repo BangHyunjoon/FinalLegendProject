@@ -1,0 +1,41 @@
+package finalproject;
+
+import java.io.Serializable;
+
+public class VendingCashManager implements Serializable{
+	private String cashtype; // 입출금타입
+	private String whencash; // 출금당시시간
+	private int withdrawcash; // 자판기 입출금 액
+	private int lastcash; // 자판기 돈통 잔액
+	
+	public VendingCashManager(String cashtype, String whencash, int withdrawcash, int lastcash){
+		this.cashtype = cashtype;
+		this.whencash = whencash;
+		this.withdrawcash = withdrawcash;
+		this.lastcash = lastcash;
+	}
+	public String getCashtype(){
+		return cashtype;
+	}
+	
+	public String getWhencash(){
+		return whencash;
+	}
+
+	public int getWithdrawcash(){
+		return withdrawcash;
+	}
+	
+	public int getLastcash(){
+		return lastcash;
+	}
+	
+	public void setWithdrawcash(int withdrawcash){
+		this.withdrawcash = withdrawcash;
+	}
+	
+	public void setCoffee(int lastcash){
+		this.lastcash = lastcash;
+	}
+
+}
